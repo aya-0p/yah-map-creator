@@ -156,51 +156,88 @@ const deviceInfo: Map<string, ViewInfo> = new Map();
   }
   await outputImage.composite(composits).png().toFile("./output.png")
 })()
-type Device = 'iPhone7'|'iPhoneXR'|'iPadAir5'
+/** ./run/settings.json */
 interface FileSettings {
-  device: Device;
+  /**デバイス名(_を使わない) */
+  device: string;
+  /**表示設定 */
   view: 'Near' | 'Medium' | 'Far';
+  /**向き設定 */
   orientation: 0 | 1;
+  /**最大撮影横(マス) */
   max_x: number;
+  /**最大撮影縦(マス) */
   max_y: number;
 }
+/**点 */
 interface Point {
+  /**上端からの距離 */
   x: number;
+  /**左端からの距離 */
   y: number;
 }
+/**領域 */
 interface Place {
+  /**領域の左上 */
   start: Point;
+  /**領域の右上 */
   end: Point;
 }
+/** ./settings/(device name).json */
 type ViewInfo = ViewInfoWithoutImage | ViewInfoWithImage
+/**画像無し */
 interface ViewInfoWithoutImage {
+  /**画像の横幅 */
   x: number;
+  /**画像の縦の長さ */
   y: number;
+  /**1ブロックのピクセル数 */
   block: number;
+  /**上部にあるステータスバーの下端 */
   topBarBottomX: number;
+  /**辞書(クラフトブック)の右上の点 */
   dictionary: Point;
+  /**キーボードなどのアイコンの左上の点 */
   animationAndKeyboard: Point;
+  /**プレイヤーの領域 */
   player: Place;
+  /**その他の描画すべきでない領域 */
   other: Array<Place>;
+  /**切り抜き用の画像があるかどうか */
   image: false;
 }
+/**画像あり */
 interface ViewInfoWithImage {
+  /**画像の横幅 */
   x: number;
+  /**画像の縦の長さ */
   y: number;
+  /**1ブロックのピクセル数 */
   block: number;
+  /**上部にあるステータスバーの下端 */
   topBarBottomX?: number;
+  /**辞書(クラフトブック)の右上の点 */
   dictionary?: Point;
+  /**キーボードなどのアイコンの左上の点 */
   animationAndKeyboard?: Point;
+  /**プレイヤーの領域 */
   player?: Place;
+  /**その他の描画すべきでない領域 */
   other?: Array<Place>;
+  /**切り抜き用の画像があるかどうか */
   image: true;
 }
 interface ViewInfos {
+  /**向き設定が縦 */
   0?: ViewInfo;
+  /**向き設定が横 */
   1?: ViewInfo;
 }
 interface DeviceInfo {
+  /**表示が近く */
   Near?: ViewInfos;
+  /**表示が中くらい */
   Medium?: ViewInfos;
+  /**表示が遠く */
   Far?: ViewInfos;
 }
