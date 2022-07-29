@@ -1,0 +1,18 @@
+{
+  "name": "yah-map-creator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "node ./dist/build.js",
+    "start": "node ./dist/run.js"
+  },
+  "author": "aya-0p",
+  "license": "Apache License 2.0",
+  "dependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/sharp": "^0.30.4",
+    "fs-extra": "^10.1.0",
+    "sharp": "^0.30.7"
+  }
+}
