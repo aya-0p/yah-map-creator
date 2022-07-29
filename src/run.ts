@@ -1,4 +1,4 @@
 (async () => {
-  import('./build')
-  import('./index')
+  await import('./build')
+  await import('./index')
 })()
