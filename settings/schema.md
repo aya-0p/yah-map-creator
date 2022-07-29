@@ -17,7 +17,23 @@
 
 ### Direction
 - type: **object**
-- properties: \[[**x**](#Points), [**y**](#Points), [**block**](#Block), [**image**](#Image), [**topBarBottomX**](#Points), [**dictionary**](#Points), [**animationAndKeyboard**](#Points), [**player**](#Place), [**other**](#Other)\]
+- properties: \[[**x(Points)**](#Points), [**y(Points)**](#Points), [**block**](#Block), [**image**](#Image), [**topBarBottomX(Points)**](#Points), [**dictionary(Points)**](#Points), [**animationAndKeyboard(Points)**](#Points), [**player**](#Place), [**other**](#Other)\]
 - required(if image is true): \[**x**, **y**, **block**, **image**\]
-- required(if image is false): **Everything**
+- required(if image is false): **all**
 - description: The places where is annouing to make map image.
+
+### Points
+- type(x, y, topBarBottomX): **number**
+- type(dictionary, animationAndKeyboard, start, end): **{"x": number, "y": number}**
+- required: **all**
+- description: 
+
+### Place
+- type: object
+- properties: \[[**start(Points)**](#Points), [**end(Points)**](#Points)\]
+- required: **all**
+- description: 
+
+### Other
+- type: array([**Place**](#Place))
+- description: 
