@@ -91,7 +91,7 @@ const deviceInfo: Map<string, ViewInfo> = new Map();
   const allDeviceSettingFiles = await fs.readdir('./settings')
   for (const device of allDeviceSettingFiles) {
     const deviceName = device.split('.').at(0)
-    if (deviceName && device.endsWith('.json')) {
+      if (deviceName && device.endsWith('.json') && device !== "schema.json") {
         const deviceSettings: DeviceInfo = await fs.readJSON(`./settings/${device}`)
         if (deviceSettings.Near !== undefined) {
           if (deviceSettings.Near[0]) deviceInfo.set(`${deviceName}_Near_0`, deviceSettings.Near[0])
