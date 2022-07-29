@@ -7,7 +7,7 @@
 1. Make '(device name).json'
 2. Write down by [documents](#Documents).
 3. Set (device name)\_(distance)\_(direction).png if need.
-## Documents
+
 ## ドキュメント
 ### (root)
 - type: **object**
@@ -22,33 +22,35 @@
 ### 方向
 - type: **object**
 - properties: \[[**x(場所)**](#場所), [**y(場所)**](#場所), [**block(ブロック)**](#ブロック), [**image(画像)**](#画像), [**topBarBottomX(場所)**](#場所), [**dictionary(場所)**](#場所), [**animationAndKeyboard(場所)**](#場所), [**player(空間)**](#空間), [**other(他)**](#他)\]
-- required(if image is true): \[**x**, **y**, **block**, **image**\]
-- required(if image is false): **all**
-- description: The places where is annouing to make map image.
+- required(imageがtrue): \[**x**, **y**, **block**, **image**\]
+- required(imageがfalse): **all**
+- 説明: 画像の不要な場所を記録
 
-### Points
+### 場所
 - type(x, y, topBarBottomX): **integer(>0)**
 - type(dictionary, animationAndKeyboard, start, end): **{"x": integer(>0), "y": integer(>0)}**
 - required: **all**
-- description: 
+- 説明: 
 
-### Place
+### 空間
 - type: object
-- properties: \[[**start(Points)**](#Points), [**end(Points)**](#Points)\]
+- properties: \[[**start(場所)**](#場所), [**end(場所)**](#場所)\]
 - required: **all**
-- description: See [Points](#Points)
+- 説明: [場所](#場所)を参照
 
-### Other
-- type: **array([Place](#Place))**
-- description: Smartphone notch, menu bar, etc...
+### 他
+- type: **array([場所](#場所))**
+- 説明: スマートフォンのノッチやメニューバーなどの映りこんでほしくないもの
 
-### Block
+### ブロック
 - type: **integer(>0)**
-- description: See [Points](#Points)
+- 説明: [場所](#場所)を参照
 
-### Image
+### 画像
 - type: **boolean**
-- description: Whether clip image was made.
+- 説明: 切り抜く画像が存在する場合、true
+
+## Documents
 ### (root)
 - type: **object**
 - properties: \[[**Near(Distance)**](#Distance), [**Medium(Distance)**](#Distance), [**Far(Distance)**](#Distance)\]
