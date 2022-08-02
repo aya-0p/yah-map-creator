@@ -28,7 +28,7 @@ app.whenReady().then(() => {
       ]
     })
     if (canceled) return
-    return filePaths
+    return filePaths.at(0)
   })
   ipcMain.handle('dialog:openCsvFile', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -41,12 +41,12 @@ app.whenReady().then(() => {
       ]
     })
     if (canceled) return
-    return filePaths
+    return filePaths.at(0)
   })
   ipcMain.on('main:setSettings', async (_, type, dir, file) => {
     const settings = type
-    const directory = dir
-    const csvFile = file
+    const directory = decodeURI(dir)
+    const csvFile = decodeURI(file)
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: "画像を保存する場所を選択...",
       defaultPath: "output.png",
@@ -55,8 +55,8 @@ app.whenReady().then(() => {
       ]
     })
     if (canceled || !filePath) return
-    const image = makeImage(settings, csvFile, directory)
-     if (image instanceof Buffer) fs.writeFile(filePath, image)
+    const image = await makeImage(settings, csvFile, directory)
+    if (image instanceof Buffer) fs.writeFile(filePath, image)
   })
 })
 app.on('window-all-closed', () => {

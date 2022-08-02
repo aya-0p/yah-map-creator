@@ -2,6 +2,8 @@ import * as fs from 'fs-extra'
 import Sharp from 'sharp'
 import path from 'path'
 import { csv2Place, sortAndRename } from './build'
+import os from 'os'
+export const tmpRoot: string = path.join(os.tmpdir(), 'map')
 
 const getDeleteImage = (settings: ViewInfoWithoutImage): Promise<Buffer> => new Promise(resolve => {
   const black = {
@@ -90,8 +92,8 @@ const getDeleteImage = (settings: ViewInfoWithoutImage): Promise<Buffer> => new 
 })
 const deviceInfo: Map<string, ViewInfo> = new Map();
 const setUp = (): void => {
-  try { fs.rmdirSync(path.join(__dirname, "../tmp")) } catch { }
-  fs.mkdirsSync(path.join(__dirname, "../tmp"))
+  try { fs.rmdirSync(tmpRoot) } catch { }
+  fs.mkdirsSync(tmpRoot)
   const allDeviceSettingFiles = fs.readdirSync(path.join(__dirname, "../settings"))
   for (const device of allDeviceSettingFiles) {
     const deviceName = device.split('.').at(0)
@@ -133,18 +135,18 @@ export const makeImage = async (deviceCode: string, csvPath: string, imagesPath:
   } else {
     try { delImg = await fs.readFile(path.join(__dirname, `../settings/${deviceCode}.png`)) } catch {return "unknown settings"}
   }
-  await fs.mkdirs(path.join(__dirname, '../tmp/img'))
-  await fs.mkdirs(path.join(__dirname, '../tmp/img_'))
+  await fs.mkdirs(path.join(tmpRoot, 'img'))
+  await fs.mkdirs(path.join(tmpRoot, 'img_'))
   const images = await sortAndRename(imagesPath)
-  if (images.length !== place.length) return "missmatch pics and data"
+  if (images.length !== place.length) return `missmatch, img: ${images.length}, data: ${place.length}`
   for (const image of images) {
-    await Sharp(image)
+    await Sharp(path.join(tmpRoot, `img_/${image}`))
       .composite([{
         input: delImg,
         blend: 'dest-out'
       }])
       .png()
-      .toFile(path.join(__dirname, `../tmp/img/${image}`))
+      .toFile(path.join(tmpRoot, `img/${image}`))
   }
   const outputImage = Sharp({
     create: {
@@ -163,7 +165,7 @@ export const makeImage = async (deviceCode: string, csvPath: string, imagesPath:
   const composits: Array<Sharp.OverlayOptions> = []
   for (const image of images) {
     composits.push({
-      input: path.join(__dirname, `../tmp/img/${image}`),
+      input: path.join(tmpRoot, `img/${image}`),
       top: (place[index]?.y ?? 0) * projectSettings.block,
       left: (place[index]?.x ?? 0) * projectSettings.block,
       blend: "over"

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
   </head>
   <body>
     <form name="form">
@@ -54,27 +55,28 @@
         ,clickArea2 = document.getElementById('click2')
         ,form = document.forms.namedItem("form")
         ,result = document.getElementById("result")
+      let dir = ""
+        ,file = ""
       clickArea.addEventListener('click', async () => {
-        const dirName = await window.electronAPI.openPicFile()
+        const dirName = decodeURI(await window.electronAPI.openPicFile())
         if (dirName === undefined) return;
         dirShowArea.innerHTML = dirName
+        dir = dirName
       })
       clickArea2.addEventListener('click', async () => {
-          const dirName = await window.electronAPI.openCsvFile()
-          if (dirName === undefined) return;
-          dirShowArea2.innerHTML = dirName
+          const fileName = decodeURI(await window.electronAPI.openCsvFile())
+          if (fileName === undefined) return;
+          dirShowArea2.innerHTML = fileName
+          file = fileName
         })
       function getForm(event) {
-        if (dirShowArea2.innerHTML !== ""
-         && dirShowArea.innerHTML !== ""
+        if (dir !== ""
+         && file !== ""
          && form.device.value !== ""
          && form.distance.value !== ""
          && form.direction.value !== "") {
           const type = `${form.device.value}_${form.distance.value}_${form.direction.value}`
-          const dir = dirShowArea.innerHTML
-          const file = dirShowArea2.innerHTML
-          window.electronAPI.setSettings(type, dir, file)
-          result.innerHTML = `${type}<br>${dir}<br>${file}`
+          window.electronAPI.setSettings(type, encodeURI(dir), encodeURI(file))
         } else {
           window.alert("入力不足のものがあります。")
         }

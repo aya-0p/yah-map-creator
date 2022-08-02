@@ -1,8 +1,9 @@
 import * as fs from 'fs-extra'
 import path from 'path'
-import type { Point } from './main'
+import { Point, tmpRoot } from './main'
 export const sortAndRename = async (imagesPath: string): Promise<string[]> => {
-  const images = (await fs.readdir(imagesPath)).filter(val => { val.endsWith("png") })
+  const images = (await fs.readdir(imagesPath)).filter(val => val.endsWith("png"))
+  
   const renamedArr: Array<string> = []
   images.sort((a, b) => {
     let index = 0
@@ -49,8 +50,8 @@ export const sortAndRename = async (imagesPath: string): Promise<string[]> => {
     }
   })
   images.forEach((imageName, index) => {
-    fs.renameSync(path.join(imagesPath, imageName), path.join(__dirname, `../tmp/img_/${index + 1}.png`))
-    renamedArr.push(path.join(__dirname, `../tmp/img_/${index + 1}.png`))
+    fs.copySync(path.join(imagesPath, imageName), path.join(tmpRoot, `img_/${index + 1}.png`))
+    renamedArr.push(`${index + 1}.png`)
   })
   return renamedArr
 }
