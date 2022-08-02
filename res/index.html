@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <form name="form">
+      <label id="click" for="folder">クリックして写真があるフォルダを選択: </label>
+      <div id="pic" name="folder"></div>
+      <br>
+
+      <label for="device">デバイスを選択: </label>
+      <select name="device" id="device">
+        <option value="">---</option>
+        <optgroup label="iPhone">
+          <option value="iPhoneXR">iPhone XR</option>
+        </optgroup>
+        <optgroup label="iPad">
+          
+        </optgroup>
+        <optgroup label="other">
+          
+        </optgroup>
+      </select>
+      <br>
+
+      <label for="distance">表示距離を選択: </label>
+      <select name="distance" id="distance">
+        <option value="">---</option>
+        <option value="Far">遠く</option>
+        <option value="Medium">中くらい</option>
+        <option value="Near">近く</option>
+      </select>
+      <br>
+
+      <label for="direction">表示方向を選択: </label>
+      <select name="direction" id="direction">
+        <option value="">---</option>
+        <option value="0">縦画面</option>
+        <option value="1">横画面</option>
+      </select>
+      <br>
+
+      <label id="click2" for="file">クリックして場所が記録されているcsvデータを選択: </label>
+      <div id="pic2" name="file"></div>
+      <br>
+
+      <button type="button" onclick="getForm()" name="a">決定</button>
+    </form>
+    <div id="result"></div>
+    <script>
+      const dirShowArea = document.getElementById('pic')
+        ,dirShowArea2 = document.getElementById('pic2')
+        ,clickArea = document.getElementById('click')
+        ,clickArea2 = document.getElementById('click2')
+        ,form = document.forms.namedItem("form")
+        ,result = document.getElementById("result")
+      clickArea.addEventListener('click', async () => {
+        const dirName = await window.electronAPI.openPicFile()
+        if (dirName === undefined) return;
+        dirShowArea.innerHTML = dirName
+      })
+      clickArea2.addEventListener('click', async () => {
+          const dirName = await window.electronAPI.openCsvFile()
+          if (dirName === undefined) return;
+          dirShowArea2.innerHTML = dirName
+        })
+      function getForm(event) {
+        if (dirShowArea2.innerHTML !== ""
+         && dirShowArea.innerHTML !== ""
+         && form.device.value !== ""
+         && form.distance.value !== ""
+         && form.direction.value !== "") {
+          const type = `${form.device.value}_${form.distance.value}_${form.direction.value}`
+          const dir = dirShowArea.innerHTML
+          const file = dirShowArea2.innerHTML
+          window.electronAPI.setSettings(type, dir, file)
+          result.innerHTML = `${type}<br>${dir}<br>${file}`
+        } else {
+          window.alert("入力不足のものがあります。")
+        }
+      }
+    </script>
+  </body>
+</html>
