@@ -2,9 +2,8 @@
   "name": "yah-map-creator",
   "version": "1.0.0",
   "description": "",
-  "main": "./dist/index.js",
+  "main": "",
   "scripts": {
-    "build": "node ./dist/build.js",
     "start": "electron ./dist/app.js"
   },
   "author": "aya-0p",

@@ -89,14 +89,14 @@ const getDeleteImage = (settings: ViewInfoWithoutImage): Promise<Buffer> => new 
   })
 })
 const deviceInfo: Map<string, ViewInfo> = new Map();
-const setUp = async (): Promise<void> => {
-  try { await fs.rmdir(path.join(__dirname, "../tmp")) } catch { }
-  await fs.mkdir(path.join(__dirname, "../tmp"))
-  const allDeviceSettingFiles = await fs.readdir(path.join(__dirname, "../settings"))
+const setUp = (): void => {
+  try { fs.rmdirSync(path.join(__dirname, "../tmp")) } catch { }
+  fs.mkdirsSync(path.join(__dirname, "../tmp"))
+  const allDeviceSettingFiles = fs.readdirSync(path.join(__dirname, "../settings"))
   for (const device of allDeviceSettingFiles) {
     const deviceName = device.split('.').at(0)
     if (deviceName && device.endsWith('.json') && device !== "schema.json") {
-      const deviceSettings: DeviceInfo = await fs.readJSON(path.join(__dirname, `../settings/${device}`))
+      const deviceSettings: DeviceInfo = fs.readJSONSync(path.join(__dirname, `../settings/${device}`))
       if (deviceSettings.Near !== undefined) {
         if (deviceSettings.Near[0]) deviceInfo.set(`${deviceName}_Near_0`, deviceSettings.Near[0])
         if (deviceSettings.Near[1]) deviceInfo.set(`${deviceName}_Near_1`, deviceSettings.Near[1])

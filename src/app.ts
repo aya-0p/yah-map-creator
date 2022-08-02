@@ -49,7 +49,10 @@ app.whenReady().then(() => {
     const csvFile = file
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: "画像を保存する場所を選択...",
-      defaultPath: "output.png"
+      defaultPath: "output.png",
+      filters: [
+        { name: '画像', extensions: ['png'] }
+      ]
     })
     if (canceled || !filePath) return
     const image = makeImage(settings, csvFile, directory)
