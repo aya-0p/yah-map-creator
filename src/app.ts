@@ -67,14 +67,30 @@ app.whenReady().then(() => {
     })
     if (canceled || !filePath) return
     const image = await makeImage(settings, csvFile, directory)
-    if (image instanceof Buffer) fs.writeFile(filePath, image)
-    await dialog.showMessageBox({
-      title: "完成",
-      message: `画像を${filePath}に保存しました。`
-    })
-    root.window.close()
-    root.help?.close()
-    process.exit()
+    if (image instanceof Buffer) {
+      try {
+        fs.writeFile(filePath, image)
+        await dialog.showMessageBox({
+          title: "完成",
+          message: `画像を${filePath}に保存しました。`
+        })
+        root.window.close()
+        root.help?.close()
+        process.exit()
+      } catch {
+        await dialog.showMessageBox(root.window, {
+          title: "エラー",
+          message: "画像を保存中にエラーが発生しました。",
+          type: "warning"
+        })
+      }
+    } else {
+      await dialog.showMessageBox(root.window, {
+        title: "エラー",
+        message: image,
+        type: "warning"
+      })
+    }
   })
   ipcMain.on("main:showHelp", async () => {
     root.showHelp()
