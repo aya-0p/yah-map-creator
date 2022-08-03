@@ -1,11 +1,12 @@
 {
   "name": "yah-map-creator",
   "version": "1.0.0",
-  "description": "",
+  "description": "Creates World Map of You are Hope Game.",
   "main": "",
   "scripts": {
-    "start": "chcp 65001 && electron ./dist/app.js",
-    "build": "tsc && electron-builder --win --x64 --dir"
+    "start": "tsc && chcp 65001 && electron ./dist/app.js",
+    "build": "tsc && electron-builder --win --x64 --dir",
+    "build-full": "tsc && electron-builder --win --x64"
   },
   "author": "aya-0p",
   "license": "Apache License 2.0",
@@ -20,7 +21,8 @@
     "electron-builder": "^23.3.3"
   },
   "build": {
-    "appId": "com.aya.map",
+    "appId": "com.aya.mapCreator",
+    "productName": "You are Hope Map Creator",
     "directories": {
       "output": "output"
     },
@@ -30,6 +32,25 @@
       "src/**/*",
       "index.js",
       "dist/**/*"
-    ]
+    ],
+    "win": {
+      "icon": "",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    }
   }
 }

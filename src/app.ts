@@ -14,7 +14,18 @@ class CreateWindow {
       title: "You are Hope Map Creator"
     })
   }
+  showHelp() {
+    if (this.help === undefined || this.help === null || this.help.isDestroyed()) {
+      this.help = new BrowserWindow({
+        width: 800,
+        height: 600,
+        autoHideMenuBar: true,
+        title: "You are Hope Map Creator - Help"
+      })
+    this.help.loadFile(path.join(__dirname, "../res/help.html"))}
+  }
   window: BrowserWindow
+  help: BrowserWindow | undefined | null
 }
 
 app.whenReady().then(() => {
@@ -57,6 +68,23 @@ app.whenReady().then(() => {
     if (canceled || !filePath) return
     const image = await makeImage(settings, csvFile, directory)
     if (image instanceof Buffer) fs.writeFile(filePath, image)
+    await dialog.showMessageBox({
+      title: "完成",
+      message: `画像を${filePath}に保存しました。`
+    })
+    root.window.close()
+    root.help?.close()
+    process.exit()
+  })
+  ipcMain.on("main:showHelp", async () => {
+    root.showHelp()
+  })
+  ipcMain.on("main:showError", async () => {
+    await dialog.showMessageBox(root.window, {
+      title: "エラー",
+      message: "入力不足の内容があります。",
+      type: "warning"
+    })
   })
 })
 app.on('window-all-closed', () => {

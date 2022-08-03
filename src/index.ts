@@ -5,5 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setSettings: (type: string, dir: string, file: string) => {
     ipcRenderer.send('main:setSettings', type, dir, file)
   },
-  openCsvFile: () => ipcRenderer.invoke('dialog:openCsvFile')
+  openCsvFile: () => ipcRenderer.invoke('dialog:openCsvFile'),
+  showHelp: () => ipcRenderer.send('main:showHelp'),
+  showError: () => ipcRenderer.send('main:showError')
 })

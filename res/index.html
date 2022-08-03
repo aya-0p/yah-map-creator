@@ -5,8 +5,8 @@
   </head>
   <body>
     <form name="form">
-      <label id="click" for="folder">クリックして写真があるフォルダを選択: </label>
-      <div id="pic" name="folder"></div>
+      <label id="click" for="folder">クリックして写真があるフォルダを選択</label>
+      <div>選択中のファイル: </div><div id="pic" name="folder">なし</div>
       <br>
 
       <label for="device">デバイスを選択: </label>
@@ -24,7 +24,7 @@
       </select>
       <br>
 
-      <label for="distance">表示距離を選択: </label>
+      <label for="distance">表示距離を選択</label>
       <select name="distance" id="distance">
         <option value="">---</option>
         <option value="Far">遠く</option>
@@ -41,11 +41,14 @@
       </select>
       <br>
 
-      <label id="click2" for="file">クリックして場所が記録されているcsvデータを選択: </label>
-      <div id="pic2" name="file"></div>
+      <label id="click2" for="file">クリックして場所が記録されているcsvデータを選択</label>
+      <div>選択中のファイル: </div><div id="pic2" name="file">なし</div>
       <br>
 
-      <button type="button" onclick="getForm()" name="a">決定</button>
+      <button type="button" onclick="getForm()" name="a">画像を生成して保存</button>
+      <br>
+      <br>
+      <button type="button" onclick="showHelp()" name="b">ヘルプを表示</button>
     </form>
     <div id="result"></div>
     <script>
@@ -59,27 +62,30 @@
         ,file = ""
       clickArea.addEventListener('click', async () => {
         const dirName = decodeURI(await window.electronAPI.openPicFile())
-        if (dirName === undefined) return;
+        if (dirName === "undefined") return;
         dirShowArea.innerHTML = dirName
         dir = dirName
       })
       clickArea2.addEventListener('click', async () => {
           const fileName = decodeURI(await window.electronAPI.openCsvFile())
-          if (fileName === undefined) return;
+          if (fileName === "undefined") return;
           dirShowArea2.innerHTML = fileName
           file = fileName
         })
       function getForm(event) {
-        if (dir !== ""
-         && file !== ""
+        if (dir !== "なし"
+         && file !== "なし"
          && form.device.value !== ""
          && form.distance.value !== ""
          && form.direction.value !== "") {
           const type = `${form.device.value}_${form.distance.value}_${form.direction.value}`
           window.electronAPI.setSettings(type, encodeURI(dir), encodeURI(file))
         } else {
-          window.alert("入力不足のものがあります。")
+          window.electronAPI.showError()
         }
+      }
+      function showHelp() {
+        window.electronAPI.showHelp()
       }
     </script>
   </body>
