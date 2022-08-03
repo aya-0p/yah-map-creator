@@ -20,12 +20,30 @@ class CreateWindow {
         width: 800,
         height: 600,
         autoHideMenuBar: true,
-        title: "You are Hope Map Creator - Help"
+        title: "You are Hope Map Creator - Help",
+        webPreferences: {
+          preload: path.join(__dirname, 'help.js')
+        }
       })
     this.help.loadFile(path.join(__dirname, "../res/help.html"))}
   }
+  showRequestPage() {
+    if (this.request === undefined || this.request === null || this.request.isDestroyed()) {
+      this.request = new BrowserWindow({
+        width: 800,
+        height: 600,
+        autoHideMenuBar: true,
+        title: "You are Hope Map Creator - Request",
+        webPreferences: {
+          preload: path.join(__dirname, 'request.js')
+        }
+      })
+      this.request.loadFile(path.join(__dirname, "../res/request.html"))
+    }
+  }
   window: BrowserWindow
   help: BrowserWindow | undefined | null
+  request: BrowserWindow | undefined | null
 }
 
 app.whenReady().then(() => {
@@ -94,6 +112,9 @@ app.whenReady().then(() => {
   })
   ipcMain.on("main:showHelp", async () => {
     root.showHelp()
+  })
+  ipcMain.on("main:showRequestPage", async () => {
+    root.showRequestPage()
   })
   ipcMain.on("main:showError", async () => {
     await dialog.showMessageBox(root.window, {
