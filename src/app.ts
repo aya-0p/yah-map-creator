@@ -1,4 +1,4 @@
-import {BrowserWindow, app, ipcMain, dialog} from 'electron'
+import {BrowserWindow, app, ipcMain, dialog, shell} from 'electron'
 import path from 'path'
 import { makeImage } from './main'
 import * as fs from 'fs-extra'
@@ -11,7 +11,12 @@ class CreateWindow {
         preload: path.join(__dirname, 'index.js')
       },
       autoHideMenuBar: true,
-      title: "You are Hope Map Creator"
+      title: "You are Hope Map Creator",
+      icon: path.join(__dirname, "../res/icon.png")
+    })
+    this.window.on("closed", () => {
+      if (this.help?.isDestroyed() === false) this.help?.close()
+      process.exit()
     })
   }
   showHelp() {
@@ -23,27 +28,13 @@ class CreateWindow {
         title: "You are Hope Map Creator - Help",
         webPreferences: {
           preload: path.join(__dirname, 'help.js')
-        }
+        },
+        icon: path.join(__dirname, "../res/icon.png")
       })
     this.help.loadFile(path.join(__dirname, "../res/help.html"))}
   }
-  showRequestPage() {
-    if (this.request === undefined || this.request === null || this.request.isDestroyed()) {
-      this.request = new BrowserWindow({
-        width: 800,
-        height: 600,
-        autoHideMenuBar: true,
-        title: "You are Hope Map Creator - Request",
-        webPreferences: {
-          preload: path.join(__dirname, 'request.js')
-        }
-      })
-      this.request.loadFile(path.join(__dirname, "../res/request.html"))
-    }
-  }
   window: BrowserWindow
   help: BrowserWindow | undefined | null
-  request: BrowserWindow | undefined | null
 }
 
 app.whenReady().then(() => {
@@ -93,7 +84,7 @@ app.whenReady().then(() => {
           message: `画像を${filePath}に保存しました。`
         })
         root.window.close()
-        root.help?.close()
+        if (root.help?.isDestroyed() === false) root.help?.close()
         process.exit()
       } catch {
         await dialog.showMessageBox(root.window, {
@@ -113,8 +104,8 @@ app.whenReady().then(() => {
   ipcMain.on("main:showHelp", async () => {
     root.showHelp()
   })
-  ipcMain.on("main:showRequestPage", async () => {
-    root.showRequestPage()
+  ipcMain.on('main:showRequestPage', (_,url: string) => {
+    shell.openExternal(url)
   })
   ipcMain.on("main:showError", async () => {
     await dialog.showMessageBox(root.window, {
@@ -122,6 +113,18 @@ app.whenReady().then(() => {
       message: "入力不足の内容があります。",
       type: "warning"
     })
+  })
+  root.help?.webContents.on('will-navigate', (e, url) => {
+    if (url.match(/^http/)) {
+      e.preventDefault()
+      shell.openExternal(url)
+    }
+  })
+  root.help?.webContents.on('new-window', (e, url) => {
+    if (url.match(/^http/)) {
+      e.preventDefault()
+      shell.openExternal(url)
+    }
   })
 })
 app.on('window-all-closed', () => {

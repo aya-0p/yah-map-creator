@@ -1,0 +1,35 @@
+span {
+  display: flex;
+}
+html {
+  max-width: calc(100% - 20px);
+  margin: 10px;
+}
+.m {
+  max-width: calc(100% - 165px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.n {
+  margin-right: 10px;
+  width: 135px;
+}
+pre {
+  padding: 10px;
+  background-color: lightgray;
+}
+.p {
+  color: darkolivegreen;
+  margin: 0px;
+  padding: 0px;
+}
+.lnk {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.link {
+  cursor: pointer;
+  text-decoration: underline;
+}

@@ -1,5 +1,5 @@
 import { ipcRenderer, contextBridge } from 'electron'
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  showRequestPage: () => ipcRenderer.invoke('main:showRequestPage')
+  showRequestPage: (url: string) => ipcRenderer.send('main:showRequestPage', url)
 })

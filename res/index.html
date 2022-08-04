@@ -2,11 +2,12 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <link href="./style.css" rel="stylesheet">
   </head>
   <body>
     <form name="form">
-      <label id="click" for="folder">クリックして写真があるフォルダを選択</label>
-      <div>選択中のファイル: </div><div id="pic" name="folder">なし</div>
+      <div id="click" onclick="event.preventDefault()" class="link">クリックして写真があるフォルダを選択</div>
+      <span><div class="n">選択中のファイル: </div><div id="pic" name="folder" class="m">なし</div></span>
       <br>
 
       <label for="device">デバイスを選択: </label>
@@ -41,8 +42,8 @@
       </select>
       <br>
 
-      <label id="click2" for="file">クリックして場所が記録されているcsvデータを選択</label>
-      <div>選択中のファイル: </div><div id="pic2" name="file">なし</div>
+      <div id="click2" onclick="event.preventDefault()" class="link">クリックして場所が記録されているcsvデータを選択</div>
+      <span><div class="n">選択中のファイル: </div><div id="pic2" name="file" class="m">なし</div></span>
       <br>
 
       <button type="button" onclick="getForm()" name="a">画像を生成して保存</button>

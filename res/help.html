@@ -3,6 +3,8 @@
 
 <head>
   <meta charset="utf-8">
+  <title>You are Hope Map Creator - Help</title>
+  <link href="./style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -16,20 +18,21 @@
 <li>数字は0以上の数字を入力してください。</li>
 </ul>
 <p>以下のように書きます。</p>
-<pre><code class="language-csv">x(左端からのマスの数),y(上端からのマスの数)
+<pre><code class="language-csv">
+<div class="p">x(左端からのマスの数),y(上端からのマスの数)</div>
 0,0
 0,1
 0,4
 0,7
 3,0
 3,4
-数字が順番通りに並べる必要はありませんが、画像の名前もその順番である必要があります。
+<div class="p">数字が順番通りに並べる必要はありませんが、画像の名前もその順番である必要があります。</div>
 2,7
-数字はいきなり飛んでいても問題ありません。
+<div class="p">数字はいきなり飛んでいても問題ありません。</div>
 50,20
-マイナスの値、たとえば
+<div class="p">マイナスの値、たとえば</div>
 -2,-1
-と書けば正常に描画できません。</code></pre>
+<div class="p">と書けば正常に描画できません。</div></code></pre>
 <h2 id="画像データの読み込み順">画像データの読み込み順</h2>
 <p>ファイルの読み込みはできるだけファイルマネージャーに準拠していますが、一部そうでない場所もあります。</p>
 <ul>
@@ -65,7 +68,7 @@ file_g(0).png</code></pre>
 <h3 id="csvファイルが見つかりませんでした。">csvファイルが見つかりませんでした。</h3>
 <p>csvファイル(撮影場所を登録した場所が書かれたファイル)が存在しないか、読み取り権限がありません。</p>
 <h3 id="選択された撮影条件での設定ファイルが見つかりませんでした。">選択された撮影条件での設定ファイルが見つかりませんでした。</h3>
-<p>その撮影端末では合成することができません。<div onclick="showRequestPage()">こちら</div>で追加を要求してください。</p>
+<p>その撮影端末では合成することができません。<div class="lnk" onclick="showGithub()" title="https://github.com/aya-0p/yah-map-creator">github</div><div class="lnk" onclick="showTwitter()" title="https://twitter.com/ayas_bot">twitter</div>などで追加を要求してください。</p>
 <h3 id="画像フォルダが見つかりませんでした。">画像フォルダが見つかりませんでした。</h3>
 <p>画像フォルダ(マップにするための画像が含まれたフォルダ)が存在しないか、読み取り権限がありません。</p>
 <h3 id="画像をコピーする際にエラーが発生しました。">画像をコピーする際にエラーが発生しました。</h3>
@@ -81,8 +84,11 @@ file_g(0).png</code></pre>
 <h3 id="入力不足の内容があります。">入力不足の内容があります。</h3>
 <p>画像フォルダ、撮影端末の種類、大きさ、方向、csvファイルを全て入力してください。</p>
 <script>
-  function showRequestPage() {
-    window.electronAPI.showRequestPage()
+  function showGithub() {
+    window.electronAPI.showRequestPage("https://github.com/aya-0p/yah-map-creator/issues/new?template=add-device.md")
+  }
+  function showTwitter() {
+    window.electronAPI.showRequestPage("https://twitter.com/ayas_bot")
   }
 </script>
 </body>
