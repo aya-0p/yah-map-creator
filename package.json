@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc && chcp 65001 && electron ./dist/app.js",
     "build": "tsc && electron-builder --win --x64 --dir",
-    "build-full": "tsc && electron-builder --win --x64"
+    "build-full": "tsc && electron-builder --win"
   },
   "author": "aya-0p",
   "license": "Apache License 2.0",
