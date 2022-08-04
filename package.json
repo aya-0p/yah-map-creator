@@ -1,6 +1,6 @@
 {
   "name": "yah-map-creator",
-  "version": "1.0.0-dev3",
+  "version": "1.0.0",
   "description": "Creates World Map of You are Hope Game.",
   "main": "",
   "scripts": {
