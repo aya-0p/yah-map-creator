@@ -35,12 +35,14 @@ const getMaxNum = (place: Array<Point>): { maxX: number, maxY: number } => {
     if (x < point.x) x = point.x
     if (y < point.y) y = point.y
   }
-  return ({maxX: x, maxY: y})
+  return ({ maxX: x, maxY: y })
 }
 
-export const makeImage = async (deviceCode: string, csvPath: string, imagesPath: string): Promise<Buffer | string> => {
+export const makeImage = async (device: string, distance: string, direction: string, csvPath: string, imagesPath: string): Promise<Buffer | string> => {
+  const deviceCode = `${device}_${distance}_${direction}`
+  const fileName = `${device}_${direction}`
   const rootThis: rootThis = { composits: [] }
-  try { rootThis.csvData = (await fs.readFile(csvPath)).toString()} catch {return "csvファイルが見つかりませんでした。"}
+  try { rootThis.csvData = (await fs.readFile(csvPath)).toString() } catch { return "csvファイルが見つかりませんでした。" }
   try { rootThis.place = csv2Place(rootThis.csvData) } catch { return "csvファイルに問題があります。" }
   rootThis.projectSettings = deviceInfo.get(deviceCode)
   if (rootThis.projectSettings === undefined) return "選択された撮影条件での設定ファイルが見つかりませんでした。"
@@ -49,8 +51,8 @@ export const makeImage = async (deviceCode: string, csvPath: string, imagesPath:
     rootThis.maxX = maxX
     rootThis.maxY = maxY
   } catch { return "撮影データから画像の大きさを特定できませんでした。" }
-  try {  rootThis.delImg = await fs.readFile(path.join(__dirname, `../settings/${deviceCode}.png`)) } catch { return "画像フォルダが見つかりませんでした。" }
-  try { await fs.mkdirs(path.join(tmpRoot, 'img')); await fs.mkdirs(path.join(tmpRoot, 'img_')) } catch {}
+  try { rootThis.delImg = await fs.readFile(path.join(__dirname, `../settings/${fileName}.png`)) } catch { return "選択された撮影条件での設定ファイルが見つかりませんでした。" }
+  try { await fs.mkdirs(path.join(tmpRoot, 'img')); await fs.mkdirs(path.join(tmpRoot, 'img_')) } catch { }
   try { rootThis.images = await sortAndRename(imagesPath) } catch { return "画像をコピーする際にエラーが発生しました。" }
   if (rootThis.images.length === 0) return "画像フォルダ内に画像が見つかりませんでした。"
   if (rootThis.images.length !== rootThis.place.length) return "画像の枚数と画像データの数が違います。"

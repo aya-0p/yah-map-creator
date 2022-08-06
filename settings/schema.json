@@ -13,8 +13,7 @@
           "required": [
             "x",
             "y",
-            "block",
-            "image"
+            "block"
           ],
           "properties": {
             "x": {
@@ -34,8 +33,7 @@
           "required": [
             "x",
             "y",
-            "block",
-            "image"
+            "block"
           ],
           "properties": {
             "x": {
@@ -61,8 +59,7 @@
           "required": [
             "x",
             "y",
-            "block",
-            "image"
+            "block"
           ],
           "properties": {
             "x": {
@@ -82,8 +79,7 @@
           "required": [
             "x",
             "y",
-            "block",
-            "image"
+            "block"
           ],
           "properties": {
             "x": {
@@ -109,8 +105,7 @@
           "required": [
             "x",
             "y",
-            "block",
-            "image"
+            "block"
           ],
           "properties": {
             "x": {
@@ -130,8 +125,7 @@
           "required": [
             "x",
             "y",
-            "block",
-            "image"
+            "block"
           ],
           "properties": {
             "x": {

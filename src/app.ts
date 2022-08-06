@@ -63,8 +63,7 @@ app.whenReady().then(() => {
     if (canceled) return
     return filePaths.at(0)
   })
-  ipcMain.on('main:setSettings', async (_, type, dir, file) => {
-    const settings = type
+  ipcMain.on('main:setSettings', async (_, device, distance, direction, dir, file) => {
     const directory = decodeURI(dir)
     const csvFile = decodeURI(file)
     const { canceled, filePath } = await dialog.showSaveDialog({
@@ -75,7 +74,7 @@ app.whenReady().then(() => {
       ]
     })
     if (canceled || !filePath) return
-    const image = await makeImage(settings, csvFile, directory)
+    const image = await makeImage(device, distance, direction, csvFile, directory)
     if (image instanceof Buffer) {
       try {
         fs.writeFile(filePath, image)

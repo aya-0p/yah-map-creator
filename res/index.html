@@ -15,9 +15,10 @@
         <option value="">---</option>
         <optgroup label="iPhone">
           <option value="iPhoneXR">iPhone XR</option>
+          <option value="iPhone7">iPhone 7</option>
         </optgroup>
         <optgroup label="iPad">
-          
+          <option value="iPadAirG5">iPad Air (第5世代)</option>
         </optgroup>
         <optgroup label="other">
           
@@ -79,8 +80,7 @@
          && form.device.value !== ""
          && form.distance.value !== ""
          && form.direction.value !== "") {
-          const type = `${form.device.value}_${form.distance.value}_${form.direction.value}`
-          window.electronAPI.setSettings(type, encodeURI(dir), encodeURI(file))
+          window.electronAPI.setSettings(form.device.value, form.distance.value, form.direction.value, encodeURI(dir), encodeURI(file))
         } else {
           window.electronAPI.showError()
         }
