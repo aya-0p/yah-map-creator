@@ -3,50 +3,36 @@ import path from 'path'
 import { Point, tmpRoot } from './main'
 export const sortAndRename = async (imagesPath: string): Promise<string[]> => {
   const images = (await fs.readdir(imagesPath)).filter(val => val.endsWith("png"))
-  
   const renamedArr: Array<string> = []
   images.sort((a, b) => {
-    let index = 0
-    const p_a = a.match(/^(?<str>.*?)(?<num>\d+)?$/)
-    const p_b = b.match(/^(?<str>.*?)(?<num>\d+)?$/)
-    if (p_a && p_b) {
-      if (p_a.groups?.str !== p_b.groups?.str) {
-        const p2_a = a.match(/^(?<str>.*?)\(?(?<num>\d+)?\)?$/)
-        const p2_b = b.match(/^(?<str>.*?)\(?(?<num>\d+)?\)?$/)
-        if (p2_a && p2_b) {
-          if (p2_a.groups?.str === p2_b.groups?.str) {
-            const aNum = Number(p2_a.groups?.num)
-            const bNum = Number(p2_b.groups?.num)
-            if (aNum > bNum) index = 1
-            if (aNum < bNum) index = -1
-            return index
+    const pattern1_a = a.match(/^(?<str>.*?)(?<num>\d+)?$/)
+    const pattern1_b = b.match(/^(?<str>.*?)(?<num>\d+)?$/)
+    if (pattern1_a !== null && pattern1_b !== null) {
+      if (pattern1_a.groups?.str === pattern1_b.groups?.str) {
+        //文字列部分が同じ(何もなしを含む)
+        return Number(pattern1_a.groups?.num) - Number(pattern1_b.groups?.num)
+      } else {
+        //文字列部分が異なる
+        const pattern2_a = a.match(/^(?<str>.*?)(\((?<num>\d+)\))?$/)
+        const pattern2_b = b.match(/^(?<str>.*?)(\((?<num>\d+)\))?$/)
+        if (pattern2_a !== null && pattern2_b !== null) {
+          if (pattern2_a.groups?.str === pattern2_b.groups?.str) {
+            //文字列部分が同じ(何もなしを含む)
+            return Number(pattern2_a.groups?.num) - Number(pattern2_b.groups?.num)
           } else {
-            const aNum = parseInt(a)
-            const bNum = parseInt(b)
-            if (aNum > bNum) index = 1
-            if (aNum < bNum) index = -1
-            return index
+            //文字列部分が異なる
+            if ([a, b].sort().at(0) === a) {
+              return -1
+            } else {
+              return 1
+            }
           }
         } else {
-          const aNum = parseInt(a)
-          const bNum = parseInt(b)
-          if (aNum > bNum) index = 1
-          if (aNum < bNum) index = -1
-          return index
+          throw new Error("Pattern2 did not match")
         }
-      } else {
-        const aNum = Number(p_a.groups?.num)
-        const bNum = Number(p_b.groups?.num)
-        if (aNum > bNum) index = 1
-        if (aNum < bNum) index = -1
-        return index
       }
     } else {
-      const aNum = parseInt(a)
-      const bNum = parseInt(b)
-      if (aNum > bNum) index = 1
-      if (aNum < bNum) index = -1
-      return index
+      throw new Error("Pattern1 did not match")
     }
   })
   images.forEach((imageName, index) => {
