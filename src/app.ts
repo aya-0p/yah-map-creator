@@ -2,7 +2,8 @@ import {BrowserWindow, app, ipcMain, dialog, shell} from 'electron'
 import path from 'path'
 import { makeImage } from './main'
 import * as fs from 'fs-extra'
-class CreateWindow {
+import runEditor from './editor'
+export class CreateWindow {
   constructor() {
     this.window = new BrowserWindow({
       width: 800,
@@ -33,8 +34,24 @@ class CreateWindow {
       })
     this.help.loadFile(path.join(__dirname, "../res/help.html"))}
   }
+  startEditor() {
+    this.editor = new BrowserWindow({
+      width: 800,
+      height: 600,
+      webPreferences: {
+        preload: path.join(__dirname, 'editor-page.js')
+      },
+      autoHideMenuBar: true,
+      title: "You are Hope Map Creator - editor",
+      icon: path.join(__dirname, "../res/icon.png")
+    })
+    this.editor.loadFile(path.join(__dirname, "../res/editor.html"))
+    this.window.destroy()
+    this.help?.destroy()
+  }
   window: BrowserWindow
-  help: BrowserWindow | undefined | null
+  help: BrowserWindow | undefined
+  editor: BrowserWindow | undefined
 }
 
 app.whenReady().then(() => {
@@ -124,6 +141,9 @@ app.whenReady().then(() => {
       e.preventDefault()
       shell.openExternal(url)
     }
+  })
+  ipcMain.on('main:start', (_, device: string, distance: string, direction: string, dir: string) => {
+    runEditor(device, distance, direction, dir, root)
   })
 })
 app.on('window-all-closed', () => {

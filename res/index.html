@@ -1,94 +1,116 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <link href="./style.css" rel="stylesheet">
-  </head>
-  <body>
-    <form name="form">
-      <div id="click" onclick="event.preventDefault()" class="link">クリックして写真があるフォルダを選択</div>
-      <span><div class="n">選択中のファイル: </div><div id="pic" name="folder" class="m">なし</div></span>
-      <br>
 
-      <label for="device">デバイスを選択: </label>
-      <select name="device" id="device">
-        <option value="">---</option>
-        <optgroup label="iPhone">
-          <option value="iPhoneXR">iPhone XR</option>
-          <option value="iPhone7">iPhone 7</option>
-        </optgroup>
-        <optgroup label="iPad">
-          <option value="iPadAirG5">iPad Air (第5世代)</option>
-        </optgroup>
-        <optgroup label="other">
-          <option value="SH-M08">AQUOS sense2 SH-M08 (2160 x 1080)</option>
-          <option value="SH-M05">AQUOS sense lite SH-M05 (1920 x 1080): Full HD</option>
-        </optgroup>
-      </select>
-      <br>
+<head>
+  <meta charset="utf-8">
+  <link href="./style.css" rel="stylesheet">
+</head>
 
-      <label for="distance">表示距離を選択</label>
-      <select name="distance" id="distance">
-        <option value="">---</option>
-        <option value="Far">遠く</option>
-        <option value="Medium">中くらい</option>
-        <option value="Near">近く</option>
-      </select>
-      <br>
+<body>
+  <form name="form">
+    <div id="click" onclick="event.preventDefault()" class="link">クリックして写真があるフォルダを選択</div>
+    <span>
+      <div class="n">選択中のファイル: </div>
+      <div id="pic" name="folder" class="m">なし</div>
+    </span>
+    <br>
 
-      <label for="direction">表示方向を選択: </label>
-      <select name="direction" id="direction">
-        <option value="">---</option>
-        <option value="0">縦画面</option>
-        <option value="1">横画面</option>
-      </select>
-      <br>
+    <label for="device">デバイスを選択: </label>
+    <select name="device" id="device">
+      <option value="">---</option>
+      <optgroup label="iPhone">
+        <option value="iPhoneXR">iPhone XR</option>
+        <option value="iPhone7">iPhone 7</option>
+      </optgroup>
+      <optgroup label="iPad">
+        <option value="iPadAirG5">iPad Air (第5世代)</option>
+      </optgroup>
+      <optgroup label="other">
+        <option value="SH-M08">AQUOS sense2 SH-M08 (2160 x 1080)</option>
+        <option value="SH-M05">AQUOS sense lite SH-M05 (1920 x 1080): Full HD</option>
+      </optgroup>
+    </select>
+    <br>
 
-      <div id="click2" onclick="event.preventDefault()" class="link">クリックして場所が記録されているcsvデータを選択</div>
-      <span><div class="n">選択中のファイル: </div><div id="pic2" name="file" class="m">なし</div></span>
-      <br>
+    <label for="distance">表示距離を選択</label>
+    <select name="distance" id="distance">
+      <option value="">---</option>
+      <option value="Far">遠く</option>
+      <option value="Medium">中くらい</option>
+      <option value="Near">近く</option>
+    </select>
+    <br>
 
-      <button type="button" onclick="getForm()" name="a">画像を生成して保存</button>
-      <br>
-      <br>
-      <button type="button" onclick="showHelp()" name="b">ヘルプを表示</button>
-    </form>
-    <div id="result"></div>
-    <script>
-      const dirShowArea = document.getElementById('pic')
-        ,dirShowArea2 = document.getElementById('pic2')
-        ,clickArea = document.getElementById('click')
-        ,clickArea2 = document.getElementById('click2')
-        ,form = document.forms.namedItem("form")
-        ,result = document.getElementById("result")
-      let dir = ""
-        ,file = ""
-      clickArea.addEventListener('click', async () => {
-        const dirName = decodeURI(await window.electronAPI.openPicFile())
-        if (dirName === "undefined") return;
-        dirShowArea.innerHTML = dirName
-        dir = dirName
-      })
-      clickArea2.addEventListener('click', async () => {
-          const fileName = decodeURI(await window.electronAPI.openCsvFile())
-          if (fileName === "undefined") return;
-          dirShowArea2.innerHTML = fileName
-          file = fileName
-        })
-      function getForm(event) {
-        if (dir !== "なし"
-         && file !== "なし"
-         && form.device.value !== ""
-         && form.distance.value !== ""
-         && form.direction.value !== "") {
-          window.electronAPI.setSettings(form.device.value, form.distance.value, form.direction.value, encodeURI(dir), encodeURI(file))
-        } else {
-          window.electronAPI.showError()
-        }
+    <label for="direction">表示方向を選択: </label>
+    <select name="direction" id="direction">
+      <option value="">---</option>
+      <option value="0">縦画面</option>
+      <option value="1">横画面</option>
+    </select>
+    <br>
+
+    <div id="click2" onclick="event.preventDefault()" class="link">クリックして場所が記録されているcsvデータを選択</div>
+    <span>
+      <div class="n">選択中のファイル: </div>
+      <div id="pic2" name="file" class="m">なし</div>
+    </span>
+    <br>
+
+    <button type="button" onclick="getForm()" name="a">画像を生成して保存</button>
+    <br>
+    <br>
+    <button type="button" onclick="showHelp()" name="b">ヘルプを表示</button>
+    <br>
+    <br>
+    <button type="button" onclick="showCreator()" name="c">Show Map Creator</button>
+  </form>
+  <div id="result"></div>
+  <script>
+    const dirShowArea = document.getElementById('pic')
+      , dirShowArea2 = document.getElementById('pic2')
+      , clickArea = document.getElementById('click')
+      , clickArea2 = document.getElementById('click2')
+      , form = document.forms.namedItem("form")
+      , result = document.getElementById("result")
+    let dir = ""
+      , file = ""
+    clickArea.addEventListener('click', async () => {
+      const dirName = decodeURI(await window.electronAPI.openPicFile())
+      if (dirName === "undefined") return;
+      dirShowArea.innerHTML = dirName
+      dir = dirName
+    })
+    clickArea2.addEventListener('click', async () => {
+      const fileName = decodeURI(await window.electronAPI.openCsvFile())
+      if (fileName === "undefined") return;
+      dirShowArea2.innerHTML = fileName
+      file = fileName
+    })
+    function getForm(event) {
+      if (dir !== "なし"
+        && file !== "なし"
+        && form.device.value !== ""
+        && form.distance.value !== ""
+        && form.direction.value !== "") {
+        window.electronAPI.setSettings(form.device.value, form.distance.value, form.direction.value, encodeURI(dir), encodeURI(file))
+      } else {
+        window.electronAPI.showError()
       }
-      function showHelp() {
-        window.electronAPI.showHelp()
+    }
+    function showHelp() {
+      window.electronAPI.showHelp()
+    }
+    function showCreator() {
+      if (dir !== "なし"
+        && form.device.value !== ""
+        && form.distance.value !== ""
+        && form.direction.value !== "") {
+        window.electronAPI.start(form.device.value, form.distance.value, form.direction.value, dir)
+      } else {
+        window.electronAPI.showError()
       }
-    </script>
-  </body>
+    }
+  </script>
+</body>
+
 </html>

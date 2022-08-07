@@ -5,7 +5,7 @@ import { csv2Place, sortAndRename } from './build'
 import os from 'os'
 export const tmpRoot: string = path.join(os.tmpdir(), 'map')
 
-const deviceInfo: Map<string, ViewInfo> = new Map();
+export const deviceInfo: Map<string, ViewInfo> = new Map();
 const setUp = (): void => {
   try { fs.rmdirSync(tmpRoot) } catch { }
   fs.mkdirsSync(tmpRoot)
@@ -97,7 +97,7 @@ export interface Point {
   y: number;
 }
 /** ./settings/(device name).json */
-interface ViewInfo {
+export interface ViewInfo {
   /**画像の横幅 */
   x: number;
   /**画像の縦の長さ */
