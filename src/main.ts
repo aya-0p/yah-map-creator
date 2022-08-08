@@ -7,7 +7,7 @@ export const tmpRoot: string = path.join(os.tmpdir(), 'map')
 
 export const deviceInfo: Map<string, ViewInfo> = new Map();
 const setUp = (): void => {
-  try { fs.rmdirSync(tmpRoot) } catch { }
+  try { fs.removeSync(tmpRoot) } catch { }
   fs.mkdirsSync(tmpRoot)
   const allDeviceSettingFiles = fs.readdirSync(path.join(__dirname, "../settings"))
   for (const device of allDeviceSettingFiles) {
