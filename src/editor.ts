@@ -181,8 +181,45 @@ export default async (device: string, distance: string, direction: string, dir: 
         }])
         .png()
         .toBuffer()
+      rootThis.tempImage = t_render
     }
   }
+  const opt: Array<OverlayOptions> = []
+  let x_length = 0, y_length = 0;
+  for (const image of rootThis.pictureFiles) {
+    const imgConfig = rootThis.imagePlace.get(image)
+    if (imgConfig) {
+      opt.push({
+        input: path.join(tmpRoot, `reducedImages/${image}`),
+        top: imgConfig.y * rootThis.deviceInfo.block,
+        left: imgConfig.x * rootThis.deviceInfo.block,
+        blend: "over"
+      })
+      if (x_length < imgConfig.x) x_length = imgConfig.x
+      if (y_length < imgConfig.y) y_length = imgConfig.y
+    }
+  }
+  const outputImage = await sharp({
+    create: {
+      width: x_length * rootThis.deviceInfo.block + rootThis.deviceInfo.x,
+      height: y_length * rootThis.deviceInfo.block + rootThis.deviceInfo.y,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 }
+    }
+  })
+    .composite(opt)
+    .png()
+    .toBuffer()
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: "画像を保存する場所を選択...",
+    defaultPath: "output.png",
+    filters: [
+      { name: '画像', extensions: ['png'] }
+    ]
+  })
+  if (canceled || !filePath) return
+  root.editor?.webContents.send("editor:title", `完成 - You are Hope Map creator - editor`)
+  fs.writeFileSync(filePath, outputImage)
 }
 interface RootThis {
   pictureFiles?: Array<string>;
