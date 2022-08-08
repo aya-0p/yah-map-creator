@@ -16,6 +16,7 @@ export class CreateWindow {
       icon: path.join(__dirname, "../res/icon.png")
     })
     this.window.on("closed", () => {
+      if (this.editor?.isDestroyed() === false) return
       if (this.help?.isDestroyed() === false) this.help?.close()
       process.exit()
     })
@@ -34,20 +35,20 @@ export class CreateWindow {
       })
     this.help.loadFile(path.join(__dirname, "../res/help.html"))}
   }
-  startEditor() {
+  async startEditor() {
     this.editor = new BrowserWindow({
       width: 800,
       height: 600,
       webPreferences: {
         preload: path.join(__dirname, 'editor-page.js')
       },
-      autoHideMenuBar: true,
+      //autoHideMenuBar: true,
       title: "You are Hope Map Creator - editor",
       icon: path.join(__dirname, "../res/icon.png")
     })
-    this.editor.loadFile(path.join(__dirname, "../res/editor.html"))
+    await this.editor.loadFile(path.join(__dirname, "../res/editor.html"))
     this.window.destroy()
-    this.help?.destroy()
+    if (this.help?.isDestroyed() === false) this.help?.destroy()
   }
   window: BrowserWindow
   help: BrowserWindow | undefined
@@ -146,8 +147,9 @@ app.whenReady().then(() => {
     runEditor(device, distance, direction, dir, root)
   })
 })
+/*
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
+})*/
