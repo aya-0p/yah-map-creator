@@ -1,4 +1,5 @@
-import { dialog } from "electron";
+import { Collection } from "@discordjs/collection";
+import { dialog, ipcMain } from "electron";
 import * as fs from 'fs-extra'
 import path from 'path'
 import sharp from "sharp";
@@ -14,16 +15,19 @@ export default async (device: string, distance: string, direction: string, dir: 
       type: "warning"
     })
   }
-  const rootThis: RootThis = {}
+  const rootThis: RootThis = {
+    imagePlace: new Collection()
+  }
   rootThis.deviceInfo = deviceInfo.get(`${device}_${distance}_${direction}`)
   if (rootThis.deviceInfo === undefined) return await errorOccured("Device not found")
-  try { rootThis.delImg = await fs.readFile(path.join(__dirname, `../settings/${`${device}_${direction}`}.png`)) } catch(_) { return "Delete image not found." }
+  try { rootThis.delImg = await fs.readFile(path.join(__dirname, `../settings/${`${device}_${direction}`}.png`)) } catch (_) { return "Delete image not found." }
   try { rootThis.pictureFiles = (await fs.readdir(dir)).sort(fileSort) } catch (_) { return await errorOccured("Directory not found.") }
   if (rootThis.pictureFiles.length === 0) return await errorOccured("Picture not found")
-  try {fs.mkdir(path.join(tmpRoot, 'editedImages'))} catch(_) {}
+  try { fs.mkdir(path.join(tmpRoot, 'editedImages')) } catch (_) { }
   try { fs.mkdir(path.join(tmpRoot, 'reducedImages')) } catch (_) { }
   for (const image of rootThis.pictureFiles) {
     await sharp(path.join(dir, image))
+      .ensureAlpha()
       .composite([{
         input: rootThis.delImg,
         blend: 'dest-out'
@@ -31,10 +35,12 @@ export default async (device: string, distance: string, direction: string, dir: 
       .png()
       .toFile(path.join(tmpRoot, `editedImages/${image}`))
     await sharp(path.join(tmpRoot, `editedImages/${image}`))
-      .resize(360)
-      .png()
+      .jpeg({
+        quality: 50
+      })
       .toFile(path.join(tmpRoot, `reducedImages/${image}`))
   }
+  root.startEditor()
 }
 interface RootThis {
   pictureFiles?: Array<string>;
