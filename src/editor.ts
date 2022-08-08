@@ -35,12 +35,10 @@ export default async (device: string, distance: string, direction: string, dir: 
       .png()
       .toFile(path.join(tmpRoot, `editedImages/${image}`))
     await sharp(path.join(tmpRoot, `editedImages/${image}`))
-      .jpeg({
-        quality: 50
-      })
+      .png()
       .toFile(path.join(tmpRoot, `reducedImages/${image}`))
   }
-  root.startEditor()
+  await root.startEditor()
   //main
   for (const image of rootThis.pictureFiles) {
     if (!rootThis.tempImage) {
@@ -58,9 +56,7 @@ export default async (device: string, distance: string, direction: string, dir: 
               left: newImagePlace.x * (rootThis.deviceInfo?.block ?? 0),
               blend: "over"
             }])
-            .jpeg({
-              quality: 50
-            })
+            .png()
             .toBuffer()
           root.editor?.webContents.send("editor:image", t_img)
         }
@@ -131,8 +127,8 @@ export default async (device: string, distance: string, direction: string, dir: 
           top: -y_min,
           left: -x_min,
           blend: "over"
-        }])
-        .jpeg()
+          }])
+        .png()
         .toBuffer()
     }
   }
