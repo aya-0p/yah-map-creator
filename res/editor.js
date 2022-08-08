@@ -25,3 +25,6 @@ window.editor.updateFunc((_, buffer) => {
   let src = urlCreator.createObjectURL(blob);
   document.getElementById("image").src = src
 })
+window.editor.updateTitle((_, title) => {
+  document.title = title
+})
