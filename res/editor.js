@@ -37,3 +37,6 @@ window.editor.updateFunc((_, buffer) => {
 window.editor.updateTitle((_, title) => {
   document.title = title
 })
+document.getElementById("image").addEventListener('click', async () => {
+  window.editor.save()
+})

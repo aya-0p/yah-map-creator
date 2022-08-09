@@ -1,5 +1,5 @@
 import { Collection } from "@discordjs/collection";
-import { dialog, ipcMain } from "electron";
+import { BrowserWindow, dialog, ipcMain } from "electron";
 import * as fs from 'fs-extra'
 import path from 'path'
 import sharp, { gravity, OverlayOptions } from "sharp";
@@ -232,30 +232,37 @@ export default async (device: string, distance: string, direction: string, dir: 
     }
   })
     .composite(opt)
+  const png = await outputImage.png().toBuffer()
+  const jpeg = await outputImage.jpeg({ quality: 85 }).toBuffer()
+  root.editor?.webContents.send("editor:image", png)
+  root.editor?.webContents.send("editor:title", `完成 - You are Hope Map creator - editor`)
   const saveFunc = async () => {
-    const { canceled, filePath } = await dialog.showSaveDialog({
+    const { canceled, filePath } = await dialog.showSaveDialog(root?.editor as BrowserWindow, {
       title: "画像を保存する場所を選択...",
       defaultPath: "output.png",
       filters: [
-        { name: 'png形式 - 高画質高容量', extensions: ['png'] },
-        { name: 'jpeg形式 - 中画質低容量', extensions: ['jpeg'] }
+        { name: 'png形式 - 高画質(容量大)', extensions: ['png'] },
+        { name: 'jpeg形式 - 中画質(容量小)', extensions: ['jpeg'] }
       ]
     })
-    root.editor?.webContents.send("editor:title", `完成 - You are Hope Map creator - editor`)
-    if (canceled || !filePath) return
+    if (canceled || !filePath) {
+      return
+    }
     let imgBuffer: Buffer | undefined
-    if (filePath.endsWith('png')) imgBuffer = await outputImage.png().toBuffer()
-    else if (filePath.endsWith('jpeg')) imgBuffer = await outputImage.jpeg({ quality: 85 }).toBuffer()
+    if (filePath.endsWith('png')) imgBuffer = png
+    else if (filePath.endsWith('jpeg')) imgBuffer = jpeg
     else {
       errorOccured("正しい拡張子を入力してください。")
       saveFunc()
       return
     }
     fs.writeFileSync(filePath, imgBuffer)
-    root.editor?.webContents.send("editor:image", imgBuffer)
-    fs.removeSync(tmpRoot)
   }
+  fs.removeSync(tmpRoot)
   saveFunc()
+  ipcMain.on('editor:save', () => {
+    saveFunc()
+  })
 }
 interface RootThis {
   pictureFiles?: Array<string>;
