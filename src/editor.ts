@@ -107,7 +107,7 @@ export default async (device: string, distance: string, direction: string, dir: 
                   .toBuffer(),
                 top: (newImagePlace.y + adjustY) * deviceInfomation.block,
                 left: (newImagePlace.x + adjustX) * deviceInfomation.block,
-                blend: "over"
+                blend: "overlay"
               }])
               .png()
               .toBuffer()
