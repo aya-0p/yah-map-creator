@@ -57,7 +57,7 @@ app.whenReady().then(() => {
   const root = new CreateWindow()
   root.window.loadFile(path.join(__dirname, "../res/index.html"))
   ipcMain.handle('dialog:openPicFolder', async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog({
+    const { canceled, filePaths } = await dialog.showOpenDialog(root.window, {
       title: "画像のあるフォルダを選択...",
       properties: [
         "openDirectory","showHiddenFiles"
