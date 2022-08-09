@@ -6,7 +6,7 @@ import sharp, { gravity, OverlayOptions } from "sharp";
 import type { CreateWindow } from "./app";
 import { fileSort } from "./build";
 
-import { tmpRoot, deviceInfo, ViewInfo } from "./main";
+import { tmpRoot, deviceInfo } from "./main";
 export default async (device: string, distance: string, direction: string, dir: string, root: CreateWindow) => {
   function errorOccured(error: string) {
     dialog.showMessageBoxSync(root.window, {
@@ -56,18 +56,21 @@ export default async (device: string, distance: string, direction: string, dir: 
             if (place.y > y_length) y_length = place.y
           })
           const updateImage = async () => {
+            let blankX = x_length, blankY = y_length, adjustX = 0, adjustY = 0
+            if (newImagePlace.x < 0) { blankX -= newImagePlace.x; adjustX = -newImagePlace.x}
+            if (newImagePlace.y < 0) { blankY -= newImagePlace.y; adjustY = -newImagePlace.y }
             const t_img = await sharp({
               create: {
-                width: Math.max(x_length, newImagePlace.x) * deviceInfomation.block + deviceInfomation.x,
-                height: Math.max(y_length, newImagePlace.y) * deviceInfomation.block + deviceInfomation.y,
+                width: Math.max(blankX, newImagePlace.x) * deviceInfomation.block + deviceInfomation.x,
+                height: Math.max(blankY, newImagePlace.y) * deviceInfomation.block + deviceInfomation.y,
                 channels: 4,
                 background: { r: 0, g: 0, b: 0, alpha: 0 }
               }
             })
               .composite([{
                 input: lastImage?.image as Buffer,
-                top: 0,
-                left: 0,
+                top: adjustY * deviceInfomation.block,
+                left: adjustX * deviceInfomation.block,
                 blend: "over"
               }, {
                 input: await sharp(path.join(tmpRoot, `reducedImages/${image}`))
@@ -102,8 +105,8 @@ export default async (device: string, distance: string, direction: string, dir: 
                   }])
                   .png()
                   .toBuffer(),
-                top: newImagePlace.y * deviceInfomation.block,
-                left: newImagePlace.x * deviceInfomation.block,
+                top: (newImagePlace.y + adjustY) * deviceInfomation.block,
+                left: (newImagePlace.x + adjustX) * deviceInfomation.block,
                 blend: "over"
               }])
               .png()
@@ -158,21 +161,25 @@ export default async (device: string, distance: string, direction: string, dir: 
           edit.nextEditPlace = { x: newX, y: newY }
           edit.history.delete(edit.history.lastKey() as string)
         } else {
-          //マップの最低値を0以上になるように移動させる
-          let x_min = 0, y_min = 0;
-          edit.history.forEach(place => {
-            if (place.x < x_min) x_min = place.x
-            if (place.y < y_min) y_min = place.y
-          })
-          edit.history.forEach((place, key) => {
-            edit.history.set(key, { x: place.x - Math.min(x_min, newX), y: place.y - Math.min(y_min, newY), image: place.image })
-          })
-          //----
-          let x_length = 0, y_length = 0
+          let x_length = 0, y_length = 0, adjustX = 0, adjustY = 0
           edit.history.forEach(place => {
             if (place.x > x_length) x_length = place.x
             if (place.y > y_length) y_length = place.y
           })
+          if (newX < 0) {
+            x_length -= newX
+            adjustX = -newX
+            edit.history.forEach((place, key) => {
+              edit.history.set(key, { x: place.x + adjustX, y: place.y, image: place.image })
+            })
+          }
+          if (newY < 0) {
+            y_length -= newY
+            adjustY = -newY
+            edit.history.forEach((place, key) => {
+              edit.history.set(key, { x: place.x, y: place.y + adjustY, image: place.image })
+            })
+          }
           const t_render = await sharp({
             create: {
               width: (Math.max(x_length, newX) * deviceInfomation.block) + deviceInfomation.x,
@@ -183,19 +190,19 @@ export default async (device: string, distance: string, direction: string, dir: 
           })
             .composite([{
               input: lastImage?.image as Buffer,
-              top: 0 - y_min,
-              left: 0 - x_min,
+              top: adjustY * deviceInfomation.block,
+              left: adjustX * deviceInfomation.block,
               blend: "over"
             }, {
               input: path.join(tmpRoot, `reducedImages/${image}`),
-              top: (newY - y_min) * deviceInfomation.block,
-              left: (newX - x_min) * deviceInfomation.block,
+              top: (newY + adjustY) * deviceInfomation.block,
+              left: (newX + adjustX) * deviceInfomation.block,
               blend: "over"
             }])
             .png()
             .toBuffer()
-          edit.history.set(image, { x: newX - x_min, y: newY - y_min, image: t_render })
-          edit.nextEditPlace = { x: newX + 1, y: newY + 1 }
+          edit.history.set(image, { x: newX + adjustX, y: newY + adjustY, image: t_render })
+          edit.nextEditPlace = { x: newX + adjustX + 1, y: newY + adjustY + 1 }
         }
       }
     }
@@ -216,7 +223,7 @@ export default async (device: string, distance: string, direction: string, dir: 
       if (y_length < imgConfig.y) y_length = imgConfig.y
     }
   }
-  const outputImage = await sharp({
+  const outputImage = sharp({
     create: {
       width: x_length * deviceInfomation.block + deviceInfomation.x,
       height: y_length * deviceInfomation.block + deviceInfomation.y,
@@ -225,18 +232,30 @@ export default async (device: string, distance: string, direction: string, dir: 
     }
   })
     .composite(opt)
-    .png()
-    .toBuffer()
-  const { canceled, filePath } = await dialog.showSaveDialog({
-    title: "画像を保存する場所を選択...",
-    defaultPath: "output.png",
-    filters: [
-      { name: '画像', extensions: ['png'] }
-    ]
-  })
-  root.editor?.webContents.send("editor:title", `完成 - You are Hope Map creator - editor`)
-  if (canceled || !filePath) return
-  fs.writeFileSync(filePath, outputImage)
+  const saveFunc = async () => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: "画像を保存する場所を選択...",
+      defaultPath: "output.png",
+      filters: [
+        { name: 'png形式 - 高画質高容量', extensions: ['png'] },
+        { name: 'jpeg形式 - 中画質低容量', extensions: ['jpeg'] }
+      ]
+    })
+    root.editor?.webContents.send("editor:title", `完成 - You are Hope Map creator - editor`)
+    if (canceled || !filePath) return
+    let imgBuffer: Buffer | undefined
+    if (filePath.endsWith('png')) imgBuffer = await outputImage.png().toBuffer()
+    else if (filePath.endsWith('jpeg')) imgBuffer = await outputImage.jpeg({ quality: 85 }).toBuffer()
+    else {
+      errorOccured("正しい拡張子を入力してください。")
+      saveFunc()
+      return
+    }
+    fs.writeFileSync(filePath, imgBuffer)
+    root.editor?.webContents.send("editor:image", imgBuffer)
+    fs.removeSync(tmpRoot)
+  }
+  saveFunc()
 }
 interface RootThis {
   pictureFiles?: Array<string>;
