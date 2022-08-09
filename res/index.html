@@ -46,30 +46,17 @@
       <option value="">---</option>
       <option value="0">縦画面</option>
       <option value="1">横画面</option>
-    </select>
+    </select><br>
     <br>
-
-    <div id="click2" onclick="event.preventDefault()" class="link">クリックして場所が記録されているcsvデータを選択</div>
-    <span>
-      <div class="n">選択中のファイル: </div>
-      <div id="pic2" name="file" class="m">なし</div>
-    </span>
-    <br>
-
-    <button type="button" onclick="getForm()" name="a">画像を生成して保存</button>
-    <br>
+    <button type="button" onclick="showCreator()" name="c">開始</button>
     <br>
     <button type="button" onclick="showHelp()" name="b">ヘルプを表示</button>
-    <br>
-    <br>
-    <button type="button" onclick="showCreator()" name="c">Show Map Creator</button>
   </form>
   <div id="result"></div>
   <script>
     const dirShowArea = document.getElementById('pic')
       , dirShowArea2 = document.getElementById('pic2')
       , clickArea = document.getElementById('click')
-      , clickArea2 = document.getElementById('click2')
       , form = document.forms.namedItem("form")
       , result = document.getElementById("result")
     let dir = ""
@@ -80,23 +67,6 @@
       dirShowArea.innerHTML = dirName
       dir = dirName
     })
-    clickArea2.addEventListener('click', async () => {
-      const fileName = decodeURI(await window.electronAPI.openCsvFile())
-      if (fileName === "undefined") return;
-      dirShowArea2.innerHTML = fileName
-      file = fileName
-    })
-    function getForm(event) {
-      if (dir !== ""
-        && file !== ""
-        && form.device.value !== ""
-        && form.distance.value !== ""
-        && form.direction.value !== "") {
-        window.electronAPI.setSettings(form.device.value, form.distance.value, form.direction.value, encodeURI(dir), encodeURI(file))
-      } else {
-        window.electronAPI.showError()
-      }
-    }
     function showHelp() {
       window.electronAPI.showHelp()
     }

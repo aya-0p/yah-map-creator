@@ -1,7 +1,5 @@
 import {BrowserWindow, app, ipcMain, dialog, shell} from 'electron'
 import path from 'path'
-import { makeImage } from './main'
-import * as fs from 'fs-extra'
 import runEditor from './editor'
 export class CreateWindow {
   constructor() {
@@ -42,7 +40,7 @@ export class CreateWindow {
       webPreferences: {
         preload: path.join(__dirname, 'editor-page.js')
       },
-      //autoHideMenuBar: true,
+      autoHideMenuBar: true,
       title: "You are Hope Map Creator - editor",
       icon: path.join(__dirname, "../res/icon.png")
     })
@@ -67,56 +65,6 @@ app.whenReady().then(() => {
     })
     if (canceled) return
     return filePaths.at(0)
-  })
-  ipcMain.handle('dialog:openCsvFile', async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog({
-      title: "csv ファイルを選択...",
-      properties: [
-        "showHiddenFiles", "openFile"
-      ],
-      filters: [
-        { name: 'csv file', extensions: ['csv'] }
-      ]
-    })
-    if (canceled) return
-    return filePaths.at(0)
-  })
-  ipcMain.on('main:setSettings', async (_, device, distance, direction, dir, file) => {
-    const directory = decodeURI(dir)
-    const csvFile = decodeURI(file)
-    const { canceled, filePath } = await dialog.showSaveDialog({
-      title: "画像を保存する場所を選択...",
-      defaultPath: "output.png",
-      filters: [
-        { name: '画像', extensions: ['png'] }
-      ]
-    })
-    if (canceled || !filePath) return
-    const image = await makeImage(device, distance, direction, csvFile, directory)
-    if (image instanceof Buffer) {
-      try {
-        fs.writeFile(filePath, image)
-        await dialog.showMessageBox({
-          title: "完成",
-          message: `画像を${filePath}に保存しました。`
-        })
-        root.window.close()
-        if (root.help?.isDestroyed() === false) root.help?.close()
-        process.exit()
-      } catch {
-        await dialog.showMessageBox(root.window, {
-          title: "エラー",
-          message: "画像を保存中にエラーが発生しました。",
-          type: "warning"
-        })
-      }
-    } else {
-      await dialog.showMessageBox(root.window, {
-        title: "エラー",
-        message: image,
-        type: "warning"
-      })
-    }
   })
   ipcMain.on("main:showHelp", async () => {
     root.showHelp()
