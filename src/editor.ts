@@ -124,6 +124,10 @@ export default async (device: string, distance: string, direction: string, dir: 
               newImagePlace.x--
               updateImage()
             }],
+            ["key:shiftLeft", function shiftLeft() {
+              newImagePlace.x = 0
+              updateImage()
+            }],
             ["key:right", function right() {
               newImagePlace.x++
               updateImage()

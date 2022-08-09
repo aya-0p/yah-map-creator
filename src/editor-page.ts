@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('editor', {
   up: () => ipcRenderer.send("key:up"),
   down: () => ipcRenderer.send("key:down"),
   left: () => ipcRenderer.send("key:left"),
+  shiftLeft: () => ipcRenderer.send("key:shiftLeft"),
   right: () => ipcRenderer.send("key:right"),
   enter: () => ipcRenderer.send("key:enter"),
   updateFunc: (callback: any) => ipcRenderer.on('editor:image', callback),

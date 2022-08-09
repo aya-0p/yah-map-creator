@@ -8,7 +8,8 @@ window.addEventListener("keydown", (e) => {
       window.editor.down()
       break;
     case "ArrowLeft":
-      window.editor.left()
+      if (e.shiftKey === true) window.editor.shiftLeft()
+      else window.editor.left()
       break;
     case "ArrowRight":
       window.editor.right()
