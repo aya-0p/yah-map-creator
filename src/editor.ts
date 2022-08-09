@@ -1,5 +1,5 @@
 import { Collection } from "@discordjs/collection";
-import { BrowserWindow, dialog, ipcMain } from "electron";
+import { BrowserWindow, dialog, Event, ipcMain } from "electron";
 import * as fs from 'fs-extra'
 import path from 'path'
 import sharp, { gravity, OverlayOptions } from "sharp";
@@ -40,6 +40,17 @@ export default async (device: string, distance: string, direction: string, dir: 
   //main
   const edit = { editing: true, history: new Collection<string, { x: number, y: number, image: Buffer }>(), nextEditPlace: { x: 1, y: 1 } }
   while (edit.editing === true) {
+    const onCloseFunc = (event: Event) => {
+      const num = dialog.showMessageBoxSync(root.window, {
+        title: "ウィンドウを閉じようとしています",
+        message: "編集中です。このまま閉じますか？",
+        type: "warning",
+        buttons: ["編集を続ける", "閉じる"]
+      })
+      console.log(num)
+      if (num === 0) event.preventDefault()
+    }
+    root.editor?.addListener('close', onCloseFunc)
     const image = rootThis.pictureFiles[edit.history.size]
     if (image) {
       root.editor?.webContents.send("editor:title", `*${image}を編集中 - You are Hope Map creator - editor`)
@@ -207,6 +218,7 @@ export default async (device: string, distance: string, direction: string, dir: 
       }
     }
     if (edit.history.size === rootThis.pictureFiles.length) edit.editing = false
+    root.editor?.removeListener('close', onCloseFunc)
   }
   const opt: Array<OverlayOptions> = []
   let x_length = 0, y_length = 0;
