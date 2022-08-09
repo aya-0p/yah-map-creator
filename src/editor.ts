@@ -17,25 +17,23 @@ export default async (device: string, distance: string, direction: string, dir: 
   }
   const rootThis: RootThis = {}
   const deviceInfomation = deviceInfo.get(`${device}_${distance}_${direction}`)
-  if (deviceInfomation === undefined) return errorOccured("Device not found")
-  try { rootThis.delImg = await fs.readFile(path.join(__dirname, `../settings/${`${device}_${direction}`}.png`)) } catch (_) { return "Delete image not found." }
-  try { rootThis.pictureFiles = (await fs.readdir(dir)).sort(fileSort) } catch (_) { return errorOccured("Directory not found.") }
-  if (rootThis.pictureFiles.length === 0) return errorOccured("Picture not found")
+  if (deviceInfomation === undefined) return errorOccured("選択された撮影条件での設定ファイルが見つかりませんでした。")
+  try { rootThis.delImg = await fs.readFile(path.join(__dirname, `../settings/${`${device}_${direction}`}.png`)) } catch (_) { return "選択された撮影条件での設定ファイルが見つかりませんでした。" }
+  try { rootThis.pictureFiles = (await fs.readdir(dir)).sort(fileSort) } catch (_) { return errorOccured("画像フォルダが見つかりませんでした。") }
+  if (rootThis.pictureFiles.length === 0) return errorOccured("画像フォルダ内に画像が見つかりませんでした。")
   try { fs.mkdir(path.join(tmpRoot, 'editedImages')) } catch (_) { }
-  try { fs.mkdir(path.join(tmpRoot, 'reducedImages')) } catch (_) { }
-  for (const image of rootThis.pictureFiles) {
-    await sharp(path.join(dir, image))
-      .ensureAlpha()
-      .composite([{
-        input: rootThis.delImg,
-        blend: 'dest-out'
-      }])
-      .png()
-      .toFile(path.join(tmpRoot, `editedImages/${image}`))
-    await sharp(path.join(tmpRoot, `editedImages/${image}`))
-      .png()
-      .toFile(path.join(tmpRoot, `reducedImages/${image}`))
-  }
+  try {
+    for (const image of rootThis.pictureFiles) {
+      await sharp(path.join(dir, image))
+        .ensureAlpha()
+        .composite([{
+          input: rootThis.delImg,
+          blend: 'dest-out'
+        }])
+        .png()
+        .toFile(path.join(tmpRoot, `editedImages/${image}`))
+    }
+  } catch (_) { return errorOccured("画像を処理できませんでした。正しくない端末を選んでいます。") }
   await root.startEditor()
   //main
   const edit = { editing: true, history: new Collection<string, { x: number, y: number, image: Buffer }>(), nextEditPlace: { x: 1, y: 1 } }
@@ -55,7 +53,7 @@ export default async (device: string, distance: string, direction: string, dir: 
     if (image) {
       root.editor?.webContents.send("editor:title", `*${image}を編集中 - You are Hope Map creator - editor`)
       if (edit.history.size === 0) {
-        edit.history.set(image, { x: 0, y: 0, image: await fs.readFile(path.join(tmpRoot, `reducedImages/${image}`)) })
+        edit.history.set(image, { x: 0, y: 0, image: await fs.readFile(path.join(tmpRoot, `editedImages/${image}`)) })
         root.editor?.webContents.send("editor:image", edit.history.get(image)?.image)
       } else {
         const lastImage = edit.history.last()
@@ -84,7 +82,7 @@ export default async (device: string, distance: string, direction: string, dir: 
                 left: adjustX * deviceInfomation.block,
                 blend: "over"
               }, {
-                input: await sharp(path.join(tmpRoot, `reducedImages/${image}`))
+                input: await sharp(path.join(tmpRoot, `editedImages/${image}`))
                   .composite([{
                     input: await sharp(path.join(__dirname, "../res/over.png"))
                       .resize(deviceInfomation.x, 10, { position: "north" })
@@ -205,7 +203,7 @@ export default async (device: string, distance: string, direction: string, dir: 
               left: adjustX * deviceInfomation.block,
               blend: "over"
             }, {
-              input: path.join(tmpRoot, `reducedImages/${image}`),
+              input: path.join(tmpRoot, `editedImages/${image}`),
               top: (newY + adjustY) * deviceInfomation.block,
               left: (newX + adjustX) * deviceInfomation.block,
               blend: "over"
@@ -226,7 +224,7 @@ export default async (device: string, distance: string, direction: string, dir: 
     const imgConfig = edit.history.get(image)
     if (imgConfig) {
       opt.push({
-        input: path.join(tmpRoot, `reducedImages/${image}`),
+        input: path.join(tmpRoot, `editedImages/${image}`),
         top: imgConfig.y * deviceInfomation.block,
         left: imgConfig.x * deviceInfomation.block,
         blend: "over"
