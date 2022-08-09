@@ -1,16 +1,20 @@
 window.addEventListener("keydown", (e) => {
   const code = e.code;
   switch (code) {
+    case "KeyW":
     case "ArrowUp":
       window.editor.up()
       break;
+    case "KeyS":
     case "ArrowDown":
       window.editor.down()
       break;
+    case "KeyA":
     case "ArrowLeft":
       if (e.shiftKey === true) window.editor.shiftLeft()
       else window.editor.left()
       break;
+    case "KeyD":
     case "ArrowRight":
       window.editor.right()
       break;
