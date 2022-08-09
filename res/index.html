@@ -19,11 +19,11 @@
     <select name="device" id="device">
       <option value="">---</option>
       <optgroup label="iPhone">
-        <option value="iPhoneXR">iPhone XR</option>
-        <option value="iPhone7">iPhone 7</option>
+        <option value="iPhoneXR">iPhone XR, 11</option>
+        <option value="iPhone7">iPhone 6,6s,7,8,SE (第2-3世代)</option>
       </optgroup>
       <optgroup label="iPad">
-        <option value="iPadAirG5">iPad Air (第5世代)</option>
+        <option value="iPadAirG5">iPad Air (第4-5世代)</option>
       </optgroup>
       <optgroup label="other">
         <option value="SH-M08">AQUOS sense2 SH-M08 (2160 x 1080)</option>
@@ -87,8 +87,8 @@
       file = fileName
     })
     function getForm(event) {
-      if (dir !== "なし"
-        && file !== "なし"
+      if (dir !== ""
+        && file !== ""
         && form.device.value !== ""
         && form.distance.value !== ""
         && form.direction.value !== "") {
@@ -101,7 +101,7 @@
       window.electronAPI.showHelp()
     }
     function showCreator() {
-      if (dir !== "なし"
+      if (dir !== ""
         && form.device.value !== ""
         && form.distance.value !== ""
         && form.direction.value !== "") {
