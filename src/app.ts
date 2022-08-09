@@ -147,9 +147,9 @@ app.whenReady().then(() => {
     runEditor(device, distance, direction, dir, root)
   })
 })
-/*
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})*/
+})
