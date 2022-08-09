@@ -16,6 +16,10 @@ window.addEventListener("keydown", (e) => {
     case "Enter":
       window.editor.enter()
       break;
+    case "Delete":
+    case "Backspace":
+      window.editor.back()
+      break;
     default:
   }
 });
