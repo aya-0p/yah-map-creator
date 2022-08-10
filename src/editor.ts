@@ -8,6 +8,7 @@ import { fileSort } from "./build";
 
 import { tmpRoot, deviceInfo } from "./main";
 export default async (device: string, distance: string, direction: string, dir: string, root: CreateWindow) => {
+  root.window.loadFile(path.join(__dirname, "../res/loading.html"))
   function errorOccured(error: string) {
     dialog.showMessageBoxSync(root.window, {
       title: "エラー",
