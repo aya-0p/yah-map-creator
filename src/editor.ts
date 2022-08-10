@@ -97,28 +97,28 @@ export default async (device: string, distance: string, direction: string, dir: 
                 input: await sharp(path.join(tmpRoot, `thumbs/${image}`))
                   .composite([{
                     input: await sharp(path.join(__dirname, "../res/over.png"))
-                      .resize(Math.floor(deviceInfomation.x/16)*2, 10, { position: "north" })
+                      .resize(Math.floor(deviceInfomation.x/16)*2, 4, { position: "north" })
                       .png()
                       .toBuffer(),
                     gravity: gravity.north,
                     blend: "over"
                   }, {
                     input: await sharp(path.join(__dirname, "../res/over.png"))
-                      .resize(Math.floor(deviceInfomation.x/16)*2, 10, { position: "north" })
+                      .resize(Math.floor(deviceInfomation.x/16)*2, 4, { position: "north" })
                       .png()
                       .toBuffer(),
                     gravity: gravity.south,
                     blend: "over"
                   }, {
                     input: await sharp(path.join(__dirname, "../res/side.png"))
-                      .resize(10, Math.floor(deviceInfomation.y/16)*2, { position: "west" })
+                      .resize(4, Math.floor(deviceInfomation.y/16)*2, { position: "west" })
                       .png()
                       .toBuffer(),
                     gravity: gravity.west,
                     blend: "over"
                   }, {
                     input: await sharp(path.join(__dirname, "../res/side.png"))
-                      .resize(10, Math.floor(deviceInfomation.y/16)*2, { position: "west" })
+                      .resize(4, Math.floor(deviceInfomation.y/16)*2, { position: "west" })
                       .png()
                       .toBuffer(),
                     gravity: gravity.east,
