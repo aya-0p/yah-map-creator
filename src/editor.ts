@@ -8,8 +8,10 @@ import { fileSort } from "./build";
 
 import { tmpRoot, deviceInfo } from "./main";
 export default async (device: string, distance: string, direction: string, dir: string, root: CreateWindow) => {
+  let processError = false
   root.window.loadFile(path.join(__dirname, "../res/loading.html"))
   function errorOccured(error: string) {
+    processError = true
     dialog.showMessageBoxSync(root.window, {
       title: "エラー",
       message: error,
@@ -19,11 +21,11 @@ export default async (device: string, distance: string, direction: string, dir: 
   const rootThis: RootThis = {}
   const deviceInfomation = deviceInfo.get(`${device}_${distance}_${direction}`)
   if (deviceInfomation === undefined) return errorOccured("選択された撮影条件での設定ファイルが見つかりませんでした。")
-  try { rootThis.delImg = await fs.readFile(path.join(__dirname, `../settings/${`${device}_${direction}`}.png`)) } catch (_) { return "選択された撮影条件での設定ファイルが見つかりませんでした。" }
+  try { rootThis.delImg = await fs.readFile(path.join(__dirname, `../settings/${`${device}_${direction}`}.png`)) } catch (_) { return errorOccured("選択された撮影条件での設定ファイルが見つかりませんでした。") }
   try { rootThis.pictureFiles = (await fs.readdir(dir)).sort(fileSort) } catch (_) { return errorOccured("画像フォルダが見つかりませんでした。") }
   if (rootThis.pictureFiles.length === 0) return errorOccured("画像フォルダ内に画像が見つかりませんでした。")
-  try { fs.mkdir(path.join(tmpRoot, 'editedImages')) } catch (_) { }
-  try { fs.mkdir(path.join(tmpRoot, 'thumbs')) } catch (_) { }
+  try { await fs.mkdir(path.join(tmpRoot, 'editedImages')) } catch (_) { }
+  try { await fs.mkdir(path.join(tmpRoot, 'thumbs')) } catch (_) { }
   try {
     for (const image of rootThis.pictureFiles) {
       await sharp(path.join(dir, image))
@@ -43,6 +45,7 @@ export default async (device: string, distance: string, direction: string, dir: 
         .toFile(path.join(tmpRoot, `thumbs/${image}`))
     }
   } catch (_) { return errorOccured("画像を処理できませんでした。正しくない端末を選んでいます。") }
+  if (processError) return
   await root.startEditor()
   //main
   const edit = { editing: true, history: new Collection<string, { x: number, y: number, image: Buffer }>(), nextEditPlace: { x: 1, y: 1 } }
