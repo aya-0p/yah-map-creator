@@ -22,6 +22,7 @@ export default async (device: string, distance: string, direction: string, dir: 
   try { rootThis.pictureFiles = (await fs.readdir(dir)).sort(fileSort) } catch (_) { return errorOccured("画像フォルダが見つかりませんでした。") }
   if (rootThis.pictureFiles.length === 0) return errorOccured("画像フォルダ内に画像が見つかりませんでした。")
   try { fs.mkdir(path.join(tmpRoot, 'editedImages')) } catch (_) { }
+  try { fs.mkdir(path.join(tmpRoot, 'thumbs')) } catch (_) { }
   try {
     for (const image of rootThis.pictureFiles) {
       await sharp(path.join(dir, image))
@@ -32,6 +33,13 @@ export default async (device: string, distance: string, direction: string, dir: 
         }])
         .png()
         .toFile(path.join(tmpRoot, `editedImages/${image}`))
+      await sharp(path.join(tmpRoot, `editedImages/${image}`))
+        .resize({
+          width: Math.floor(deviceInfomation.x/16)*2,
+          height: Math.floor(deviceInfomation.y/16)*2
+        })
+        .png()
+        .toFile(path.join(tmpRoot, `thumbs/${image}`))
     }
   } catch (_) { return errorOccured("画像を処理できませんでした。正しくない端末を選んでいます。") }
   await root.startEditor()
@@ -45,7 +53,6 @@ export default async (device: string, distance: string, direction: string, dir: 
         type: "warning",
         buttons: ["編集を続ける", "閉じる"]
       })
-      console.log(num)
       if (num === 0) event.preventDefault()
     }
     root.editor?.addListener('close', onCloseFunc)
@@ -53,7 +60,7 @@ export default async (device: string, distance: string, direction: string, dir: 
     if (image) {
       root.editor?.webContents.send("editor:title", `*${image}を編集中 - You are Hope Map creator - editor`)
       if (edit.history.size === 0) {
-        edit.history.set(image, { x: 0, y: 0, image: await fs.readFile(path.join(tmpRoot, `editedImages/${image}`)) })
+        edit.history.set(image, { x: 0, y: 0, image: await fs.readFile(path.join(tmpRoot, `thumbs/${image}`)) })
         root.editor?.webContents.send("editor:image", edit.history.get(image)?.image)
       } else {
         const lastImage = edit.history.last()
@@ -70,43 +77,43 @@ export default async (device: string, distance: string, direction: string, dir: 
             if (newImagePlace.y < 0) { blankY -= newImagePlace.y; adjustY = -newImagePlace.y }
             const t_img = await sharp({
               create: {
-                width: Math.max(blankX, newImagePlace.x) * deviceInfomation.block + deviceInfomation.x,
-                height: Math.max(blankY, newImagePlace.y) * deviceInfomation.block + deviceInfomation.y,
+                width: Math.ceil((Math.max(blankX, newImagePlace.x) * deviceInfomation.block + deviceInfomation.x)/16)*2,
+                height: Math.ceil((Math.max(blankY, newImagePlace.y) * deviceInfomation.block + deviceInfomation.y)/16)*2,
                 channels: 4,
                 background: { r: 0, g: 0, b: 0, alpha: 0 }
               }
             })
               .composite([{
                 input: lastImage?.image as Buffer,
-                top: adjustY * deviceInfomation.block,
-                left: adjustX * deviceInfomation.block,
+                top: Math.floor((adjustY * deviceInfomation.block)/16)*2,
+                left: Math.floor((adjustX * deviceInfomation.block)/16)*2,
                 blend: "over"
               }, {
-                input: await sharp(path.join(tmpRoot, `editedImages/${image}`))
+                input: await sharp(path.join(tmpRoot, `thumbs/${image}`))
                   .composite([{
                     input: await sharp(path.join(__dirname, "../res/over.png"))
-                      .resize(deviceInfomation.x, 10, { position: "north" })
+                      .resize(Math.floor(deviceInfomation.x/16)*2, 10, { position: "north" })
                       .png()
                       .toBuffer(),
                     gravity: gravity.north,
                     blend: "over"
                   }, {
                     input: await sharp(path.join(__dirname, "../res/over.png"))
-                      .resize(deviceInfomation.x, 10, { position: "north" })
+                      .resize(Math.floor(deviceInfomation.x/16)*2, 10, { position: "north" })
                       .png()
                       .toBuffer(),
                     gravity: gravity.south,
                     blend: "over"
                   }, {
                     input: await sharp(path.join(__dirname, "../res/side.png"))
-                      .resize(10, deviceInfomation.y, { position: "west" })
+                      .resize(10, Math.floor(deviceInfomation.y/16)*2, { position: "west" })
                       .png()
                       .toBuffer(),
                     gravity: gravity.west,
                     blend: "over"
                   }, {
                     input: await sharp(path.join(__dirname, "../res/side.png"))
-                      .resize(10, deviceInfomation.y, { position: "west" })
+                      .resize(10, Math.floor(deviceInfomation.y/16)*2, { position: "west" })
                       .png()
                       .toBuffer(),
                     gravity: gravity.east,
@@ -114,8 +121,8 @@ export default async (device: string, distance: string, direction: string, dir: 
                   }])
                   .png()
                   .toBuffer(),
-                top: (newImagePlace.y + adjustY) * deviceInfomation.block,
-                left: (newImagePlace.x + adjustX) * deviceInfomation.block,
+                top: Math.floor(((newImagePlace.y + adjustY) * deviceInfomation.block)/16)*2,
+                left: Math.floor(((newImagePlace.x + adjustX) * deviceInfomation.block)/16)*2,
                 blend: "overlay"
               }])
               .png()
@@ -191,21 +198,21 @@ export default async (device: string, distance: string, direction: string, dir: 
           }
           const t_render = await sharp({
             create: {
-              width: (Math.max(x_length, newX) * deviceInfomation.block) + deviceInfomation.x,
-              height: (Math.max(y_length, newY) * deviceInfomation.block) + deviceInfomation.y,
+              width: Math.ceil(((Math.max(x_length, newX) * deviceInfomation.block) + deviceInfomation.x)/16)*2,
+              height: Math.ceil(((Math.max(y_length, newY) * deviceInfomation.block) + deviceInfomation.y)/16)*2,
               channels: 4,
               background: { r: 0, g: 0, b: 0, alpha: 0 }
             }
           })
             .composite([{
               input: lastImage?.image as Buffer,
-              top: adjustY * deviceInfomation.block,
-              left: adjustX * deviceInfomation.block,
+              top: Math.floor((adjustY * deviceInfomation.block)/16)*2,
+              left: Math.floor((adjustX * deviceInfomation.block)/16)*2,
               blend: "over"
             }, {
-              input: path.join(tmpRoot, `editedImages/${image}`),
-              top: (newY + adjustY) * deviceInfomation.block,
-              left: (newX + adjustX) * deviceInfomation.block,
+              input: path.join(tmpRoot, `thumbs/${image}`),
+              top: Math.floor(((newY + adjustY) * deviceInfomation.block)/16)*2,
+              left: Math.floor(((newX + adjustX) * deviceInfomation.block)/16)*2,
               blend: "over"
             }])
             .png()
