@@ -3,7 +3,8 @@ window.addEventListener("keydown", (e) => {
   switch (code) {
     case "KeyW":
     case "ArrowUp":
-      window.editor.up()
+      if (e.shiftKey === true) window.editor.shiftUp()
+      else window.editor.up()
       break;
     case "KeyS":
     case "ArrowDown":

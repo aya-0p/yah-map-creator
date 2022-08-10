@@ -2,6 +2,7 @@ import { ipcRenderer, contextBridge } from 'electron'
 
 contextBridge.exposeInMainWorld('editor', {
   up: () => ipcRenderer.send("key:up"),
+  shiftUp: () => ipcRenderer.send("key:shiftUp"),
   down: () => ipcRenderer.send("key:down"),
   left: () => ipcRenderer.send("key:left"),
   shiftLeft: () => ipcRenderer.send("key:shiftLeft"),
