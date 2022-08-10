@@ -41,7 +41,7 @@ export class CreateWindow {
         preload: path.join(__dirname, 'editor-page.js')
       },
       autoHideMenuBar: true,
-      title: "You are Hope Map Creator - editor",
+      title: "You are Hope Map Creator - Editor",
       icon: path.join(__dirname, "../res/icon.png")
     })
     await this.editor.loadFile(path.join(__dirname, "../res/editor.html"))

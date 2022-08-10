@@ -63,7 +63,7 @@ export default async (device: string, distance: string, direction: string, dir: 
     root.editor?.addListener('close', onCloseFunc)
     const image = rootThis.pictureFiles[edit.history.size]
     if (image) {
-      root.editor?.webContents.send("editor:title", `*${image}を編集中 - You are Hope Map creator - editor`)
+      root.editor?.webContents.send("editor:title", `*${image}を編集中 - You are Hope Map Creator - Editor`)
       if (edit.history.size === 0) {
         edit.history.set(image, { x: 0, y: 0, image: await fs.readFile(path.join(tmpRoot, `thumbs/${image}`)) })
         root.editor?.webContents.send("editor:image", edit.history.get(image)?.image)
@@ -234,7 +234,7 @@ export default async (device: string, distance: string, direction: string, dir: 
     if (edit.history.size === rootThis.pictureFiles.length) edit.editing = false
     root.editor?.removeListener('close', onCloseFunc)
   }
-  root.editor?.webContents.send("editor:title", `画像生成中 - You are Hope Map creator - editor`)
+  root.editor?.webContents.send("editor:title", `画像生成中 - You are Hope Map Creator - Editor`)
   const opt: Array<OverlayOptions> = []
   let x_length = 0, y_length = 0;
   for (const image of rootThis.pictureFiles) {
@@ -262,7 +262,7 @@ export default async (device: string, distance: string, direction: string, dir: 
   const png = await outputImage.png().toBuffer()
   const jpeg = await outputImage.jpeg({ quality: 85 }).toBuffer()
   root.editor?.webContents.send("editor:image", png)
-  root.editor?.webContents.send("editor:title", `完成 - You are Hope Map creator - editor`)
+  root.editor?.webContents.send("editor:title", `完成 - You are Hope Map Creator - Editor`)
   const saveFunc = async () => {
     const { canceled, filePath } = await dialog.showSaveDialog(root?.editor as BrowserWindow, {
       title: "画像を保存する場所を選択...",
