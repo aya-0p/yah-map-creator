@@ -17,6 +17,7 @@ export default async (device: string, distance: string, direction: string, dir: 
       message: error,
       type: "warning"
     })
+    root.window.loadFile(path.join(__dirname, "../res/index.html"))
   }
   const rootThis: RootThis = {}
   const deviceInfomation = deviceInfo.get(`${device}_${distance}_${direction}`)
@@ -229,6 +230,7 @@ export default async (device: string, distance: string, direction: string, dir: 
     if (edit.history.size === rootThis.pictureFiles.length) edit.editing = false
     root.editor?.removeListener('close', onCloseFunc)
   }
+  root.editor?.webContents.send("editor:title", `画像生成中 - You are Hope Map creator - editor`)
   const opt: Array<OverlayOptions> = []
   let x_length = 0, y_length = 0;
   for (const image of rootThis.pictureFiles) {
