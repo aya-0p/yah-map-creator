@@ -5,7 +5,7 @@
   "main": "web/index.js",
   "scripts": {
     "test": "tsc && chcp 65001 && electron ./dist/app.js",
-    "start": "node web/index.js",
+    "start": "node ./web/index.js",
     "build": "",
     "build-full": "tsc && electron-builder --win"
   },
