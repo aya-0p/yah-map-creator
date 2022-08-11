@@ -1,5 +1,4 @@
 import * as fs from 'fs-extra'
-import Sharp from 'sharp'
 import path from 'path'
 import os from 'os'
 export const tmpRoot: string = path.join(os.tmpdir(), 'map')
