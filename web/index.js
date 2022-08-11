@@ -21,7 +21,7 @@ const userComtent = class {
   }
   error = ""
 }
-app.listen(80)
+app.listen(process.env.PORT || 8080)
 app.get('/', (_, res) => {
   res.send('test')
 })
