@@ -21,7 +21,7 @@ const userComtent = class {
   }
   error = ""
 }
-app.listen(443)
+app.listen(80)
 app.get('/', (_, res) => {
   res.send('test')
 })
