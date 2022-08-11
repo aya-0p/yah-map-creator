@@ -4,9 +4,8 @@
   "description": "Creates World Map of You are Hope Game.",
   "main": "web/index.js",
   "scripts": {
-    "test": "tsc && chcp 65001 && electron ./dist/app.js",
-    "start": "node ./web/index.js",
-    "build": "",
+    "start": "tsc && chcp 65001 && electron ./dist/app.js",
+    "build": "tsc && electron-builder --win --x64 --dir",
     "build-full": "tsc && electron-builder --win"
   },
   "author": "aya-0p",
