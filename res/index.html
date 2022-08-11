@@ -52,6 +52,8 @@
     <button type="button" onclick="showCreator()" name="c">開始</button>
     <br>
     <button type="button" onclick="showHelp()" name="b">ヘルプを表示</button>
+    <br><br>
+    <!-- <button type="button" onclick="showLog()" name="d">show logs</button> -->
   </form>
   <div id="result"></div>
   <script>
@@ -70,6 +72,9 @@
     })
     function showHelp() {
       window.electronAPI.showHelp()
+    }
+    function showLog() {
+      window.electronAPI.showLog()
     }
     function showCreator() {
       if (dir !== ""
