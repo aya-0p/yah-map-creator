@@ -2,7 +2,7 @@
   "name": "yah-map-creator",
   "version": "1.1.0",
   "description": "Creates World Map of You are Hope Game.",
-  "main": "web/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "tsc && chcp 65001 && electron ./dist/app.js",
     "build": "tsc && electron-builder --win --x64 --dir",

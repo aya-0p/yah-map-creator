@@ -7,6 +7,7 @@ import { CreateWindow, log } from "./app";
 import { fileSort } from "./build";
 
 import { tmpRoot, deviceInfo } from "./main";
+import { ExtendCollection } from "./ExtraCollection";
 export default async (device: string, distance: string, direction: string, dir: string, root: CreateWindow) => {
   let processError = false
   root.window.loadFile(path.join(__dirname, "../res/loading.html"))
@@ -19,7 +20,14 @@ export default async (device: string, distance: string, direction: string, dir: 
     })
     root.window.loadFile(path.join(__dirname, "../res/index.html"))
   }
-  const rootThis: RootThis = {}
+  const rootThis: RootThis = {
+    previewImageRatio: 16,
+    thumbnailImages: new ExtendCollection(),
+    pictureFiles: new ExtendCollection(),
+    delImg: Buffer.from([]),
+    over: Buffer.from([]),
+    side: Buffer.from([])
+  }
   const deviceInfomation = deviceInfo.get(`${device}_${distance}_${direction}`)
   if (deviceInfomation === undefined) return errorOccured("選択された撮影条件での設定ファイルが見つかりませんでした。")
   try {
@@ -35,11 +43,13 @@ export default async (device: string, distance: string, direction: string, dir: 
   }
   
   try {
-    rootThis.pictureFiles = fs.readdirSync(dir).sort(fileSort)
+    fs.readdirSync(dir).sort(fileSort).forEach(name => {
+      rootThis.pictureFiles.set(path.join(dir, name), name)
+    })
   } catch (_) {
     return errorOccured("画像フォルダが見つかりませんでした。")
   }
-  if (rootThis.pictureFiles.length === 0) return errorOccured("画像フォルダ内に画像が見つかりませんでした。")
+  if (rootThis.pictureFiles.size === 0) return errorOccured("画像フォルダ内に画像が見つかりませんでした。")
   try {
     fs.mkdirSync(path.join(tmpRoot, 'editedImages'))
   } catch (_) { }
@@ -47,22 +57,55 @@ export default async (device: string, distance: string, direction: string, dir: 
     fs.mkdirSync(path.join(tmpRoot, 'thumbs'))
   } catch (_) { }
   try {
-    for (const image of rootThis.pictureFiles) {
-      await sharp(path.join(dir, image))
+    const resizedOverImage = await sharp(rootThis.over)
+      .resize(Math.floor(deviceInfomation.x / rootThis.previewImageRatio) * 2, 4, { position: "north" })
+      .png()
+      .toBuffer(),
+    resizedSideImage = await sharp(rootThis.side)
+      .resize(4, Math.floor(deviceInfomation.y / rootThis.previewImageRatio) * 2, { position: "west" })
+      .png()
+      .toBuffer()
+    for (const [imagePath, image] of rootThis.pictureFiles) {
+      const originalImage = await sharp(imagePath)
         .ensureAlpha()
         .composite([{
           input: rootThis.delImg,
           blend: 'dest-out'
         }])
         .png()
-        .toFile(path.join(tmpRoot, `editedImages/${image}`))
-      await sharp(path.join(tmpRoot, `editedImages/${image}`))
+        .toBuffer()
+      fs.writeFile(path.join(tmpRoot, `editedImages/${image}`), originalImage)
+      const thumbImg = await sharp(originalImage)
         .resize({
-          width: Math.floor(deviceInfomation.x / 16) * 2,
-          height: Math.floor(deviceInfomation.y / 16) * 2
+          width: Math.floor(deviceInfomation.x / rootThis.previewImageRatio) * 2,
+          height: Math.floor(deviceInfomation.y / rootThis.previewImageRatio) * 2
         })
         .png()
-        .toFile(path.join(tmpRoot, `thumbs/${image}`))
+        .toBuffer()
+      rootThis.thumbnailImages.set(imagePath, {
+        data: thumbImg,
+        selectedData: await sharp(thumbImg)
+          .composite([{
+            input: resizedOverImage,
+            gravity: gravity.north,
+            blend: "over"
+          }, {
+            input: resizedOverImage,
+            gravity: gravity.south,
+            blend: "over"
+          }, {
+            input: resizedSideImage,
+            gravity: gravity.west,
+            blend: "over"
+          }, {
+            input: resizedSideImage,
+            gravity: gravity.east,
+            blend: "over"
+          }])
+          .png()
+          .toBuffer(),
+        filePath: imagePath
+      })
     }
   } catch (_) { return errorOccured("画像を処理できませんでした。正しくない端末を選んでいます。") }
   log('editor: setup done')
@@ -71,7 +114,14 @@ export default async (device: string, distance: string, direction: string, dir: 
   } else {
     await root.startEditor()
     //main
-    const edit = { editing: true, history: new Collection<string, { x: number, y: number, image: Buffer }>(), nextEditPlace: { x: 1, y: 1 } }
+    const edit = {
+      editing: true, 
+      history: new Collection<string, { x: number, y: number, image: Buffer }>(), 
+      nextEditPlace: { 
+        x: 1, 
+        y: 1
+      }
+    }
     const onCloseFunc = (event: Event) => {
       const num = dialog.showMessageBoxSync(root.window, {
         title: "ウィンドウを閉じようとしています",
@@ -83,13 +133,15 @@ export default async (device: string, distance: string, direction: string, dir: 
     }
     root.editor?.addListener('close', onCloseFunc)
     while (edit.editing === true) {
-      log(`editor: start, ${edit.history.size}/${rootThis.pictureFiles.length}`)
-      const image = rootThis.pictureFiles[edit.history.size]
+      log(`editor: start, ${edit.history.size}/${rootThis.pictureFiles.size}`)
+      const image = rootThis.pictureFiles.at(edit.history.size)
       if (image) {
+        const thumbImage = rootThis.thumbnailImages.get(path.join(dir, image))?.data as Buffer
+        const selectingImage = rootThis.thumbnailImages.get(path.join(dir, image))?.selectedData as Buffer
         root.editor?.webContents.send("editor:title", `*${image}を編集中 - You are Hope Map Creator - Editor`)
         if (edit.history.size === 0) {
-          edit.history.set(image, { x: 0, y: 0, image: fs.readFileSync(path.join(tmpRoot, `thumbs/${image}`)) })
-          root.editor?.webContents.send("editor:image", edit.history.get(image)?.image)
+          edit.history.set(image, { x: 0, y: 0, image: thumbImage })
+          root.editor?.webContents.send("editor:image", thumbImage)
         } else {
           const lastImage = edit.history.last()
           const { newX, newY, back }: { newX: number, newY: number, back: boolean } = await new Promise(async (resolve) => {
@@ -107,94 +159,27 @@ export default async (device: string, distance: string, direction: string, dir: 
               log("editor: start making thumbnail image")
               const t_img = await sharp({
                 create: {
-                  width: Math.ceil((Math.max(blankX, newImagePlace.x) * deviceInfomation.block + deviceInfomation.x) / 16) * 2,
-                  height: Math.ceil((Math.max(blankY, newImagePlace.y) * deviceInfomation.block + deviceInfomation.y) / 16) * 2,
+                  width: Math.ceil((Math.max(blankX, newImagePlace.x) * deviceInfomation.block + deviceInfomation.x) / rootThis.previewImageRatio) * 2,
+                  height: Math.ceil((Math.max(blankY, newImagePlace.y) * deviceInfomation.block + deviceInfomation.y) / rootThis.previewImageRatio) * 2,
                   channels: 4,
                   background: { r: 0, g: 0, b: 0, alpha: 0 }
                 }
               })
                 .composite([{
                   input: lastImage?.image as Buffer,
-                  top: Math.floor((adjustY * deviceInfomation.block) / 16) * 2,
-                  left: Math.floor((adjustX * deviceInfomation.block) / 16) * 2,
+                  top: Math.floor((adjustY * deviceInfomation.block) / rootThis.previewImageRatio) * 2,
+                  left: Math.floor((adjustX * deviceInfomation.block) / rootThis.previewImageRatio) * 2,
                   blend: "over"
                 }, {
-                  input: await (async () => {
-                    const s = new Date()
-                    log("editor: start image5")
-                    const img = await sharp(path.join(tmpRoot, `thumbs/${image}`))
-                      .composite([{
-                        input: await (async () => {
-                          const s = new Date()
-                          log("editor: start image1")
-                          const img = await sharp(rootThis.over)//-------------------------------------------
-                            .resize(Math.floor(deviceInfomation.x / 16) * 2, 4, { position: "north" })
-                            .png()
-                            .toBuffer()
-                          const t = new Date().getTime() - s.getTime()
-                          log(`editor: finish image1, ${t}ms`)
-                          return img
-                        })(),
-                        gravity: gravity.north,
-                        blend: "over"
-                      }, {
-                        input: await (async () => {
-                          const s = new Date()
-                          log("editor: start image2")
-                          const img = await sharp(rootThis.over)
-                            .resize(Math.floor(deviceInfomation.x / 16) * 2, 4, { position: "north" })
-                            .png()
-                            .toBuffer()
-                          const t = new Date().getTime() - s.getTime()
-                          log(`editor: finish image2, ${t}ms`)
-                          return img
-                        })(),
-                        gravity: gravity.south,
-                        blend: "over"
-                      }, {
-                        input: await (async () => {
-                          const s = new Date()
-                          log("editor: start image3")
-                          const img = await sharp(rootThis.side)
-                            .resize(4, Math.floor(deviceInfomation.y / 16) * 2, { position: "west" })
-                            .png()
-                            .toBuffer()
-                          const t = new Date().getTime() - s.getTime()
-                          log(`editor: finish image3, ${t}ms`)
-                          return img
-                        })(),
-                        gravity: gravity.west,
-                        blend: "over"
-                      }, {
-                        input: await (async () => {
-                          const s = new Date()
-                          log("editor: start image4")
-                          const img = await sharp(rootThis.side)
-                            .resize(4, Math.floor(deviceInfomation.y / 16) * 2, { position: "west" })
-                            .png()
-                            .toBuffer()
-                          const t = new Date().getTime() - s.getTime()
-                          log(`editor: finish image4, ${t}ms`)
-                          return img
-                        })(),
-                        gravity: gravity.east,
-                        blend: "over"
-                      }])
-                      .png()
-                      .toBuffer()
-                    const t = new Date().getTime() - s.getTime()
-                    log(`editor: finish image5, ${t}ms`)
-                    return img
-                  })(),
-                  top: Math.floor(((newImagePlace.y + adjustY) * deviceInfomation.block) / 16) * 2,
-                  left: Math.floor(((newImagePlace.x + adjustX) * deviceInfomation.block) / 16) * 2,
+                  input: selectingImage,
+                  top: Math.floor(((newImagePlace.y + adjustY) * deviceInfomation.block) / rootThis.previewImageRatio) * 2,
+                  left: Math.floor(((newImagePlace.x + adjustX) * deviceInfomation.block) / rootThis.previewImageRatio) * 2,
                   blend: "overlay"
                 }])
                 .png()
                 .toBuffer()
               root.editor?.webContents.send("editor:image", t_img)
-              const time = new Date().getTime() - startTime.getTime()
-              log(`editor: finish making thumbnail image, ${time}ms`)
+              log(`editor: finish making thumbnail image, ${new Date().getTime() - startTime.getTime()}ms`)
             }
             await updateImage()
             const events = new Map([
@@ -269,21 +254,21 @@ export default async (device: string, distance: string, direction: string, dir: 
             }
             const t_render = await sharp({
               create: {
-                width: Math.ceil(((Math.max(x_length, newX) * deviceInfomation.block) + deviceInfomation.x) / 16) * 2,
-                height: Math.ceil(((Math.max(y_length, newY) * deviceInfomation.block) + deviceInfomation.y) / 16) * 2,
+                width: Math.ceil(((Math.max(x_length, newX) * deviceInfomation.block) + deviceInfomation.x) / rootThis.previewImageRatio) * 2,
+                height: Math.ceil(((Math.max(y_length, newY) * deviceInfomation.block) + deviceInfomation.y) / rootThis.previewImageRatio) * 2,
                 channels: 4,
                 background: { r: 0, g: 0, b: 0, alpha: 0 }
               }
             })
               .composite([{
                 input: lastImage?.image as Buffer,
-                top: Math.floor((adjustY * deviceInfomation.block) / 16) * 2,
-                left: Math.floor((adjustX * deviceInfomation.block) / 16) * 2,
+                top: Math.floor((adjustY * deviceInfomation.block) / rootThis.previewImageRatio) * 2,
+                left: Math.floor((adjustX * deviceInfomation.block) / rootThis.previewImageRatio) * 2,
                 blend: "over"
               }, {
-                input: path.join(tmpRoot, `thumbs/${image}`),
-                top: Math.floor(((newY + adjustY) * deviceInfomation.block) / 16) * 2,
-                left: Math.floor(((newX + adjustX) * deviceInfomation.block) / 16) * 2,
+                input: thumbImage,
+                top: Math.floor(((newY + adjustY) * deviceInfomation.block) / rootThis.previewImageRatio) * 2,
+                left: Math.floor(((newX + adjustX) * deviceInfomation.block) / rootThis.previewImageRatio) * 2,
                 blend: "over"
               }])
               .png()
@@ -293,7 +278,7 @@ export default async (device: string, distance: string, direction: string, dir: 
           }
         }
       }
-      if (edit.history.size === rootThis.pictureFiles.length) edit.editing = false
+      if (edit.history.size === rootThis.pictureFiles.size) edit.editing = false
     }
     const startTime = new Date()
     log("editor: start making image")
@@ -301,7 +286,7 @@ export default async (device: string, distance: string, direction: string, dir: 
     root.editor?.webContents.send("editor:title", `画像生成中 - You are Hope Map Creator - Editor`)
     const opt: Array<OverlayOptions> = []
     let x_length = 0, y_length = 0;
-    for (const image of rootThis.pictureFiles) {
+    for (const [_, image] of rootThis.pictureFiles) {
       const imgConfig = edit.history.get(image)
       if (imgConfig) {
         opt.push({
@@ -320,7 +305,8 @@ export default async (device: string, distance: string, direction: string, dir: 
         height: y_length * deviceInfomation.block + deviceInfomation.y,
         channels: 4,
         background: { r: 0, g: 0, b: 0, alpha: 0 }
-      }
+      },
+      limitInputPixels: false
     })
       .composite(opt)
     const png = await outputImage.png().toBuffer()
@@ -359,8 +345,29 @@ export default async (device: string, distance: string, direction: string, dir: 
   }
 }
 interface RootThis {
-  pictureFiles?: Array<string>;
-  delImg?: Buffer;
-  over?: Buffer;
-  side?: Buffer;
+  /**
+   * thumbnail images
+   * @key full path
+   * @value EditImageData
+   */
+  thumbnailImages: ExtendCollection<string, EditImageData>;
+  /**
+   * image file paths
+   * @key full path
+   * @value file name
+   */
+  pictureFiles: ExtendCollection<string, string>;
+  delImg: Buffer;
+  over: Buffer;
+  side: Buffer;
+  /**
+   * thumbnail image ratio
+   */
+  previewImageRatio: number;
+}
+
+interface EditImageData {
+  data: Buffer;
+  selectedData: Buffer;
+  filePath: string;
 }
