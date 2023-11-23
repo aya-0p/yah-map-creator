@@ -2,11 +2,15 @@
   "devices": [
     {
       "file": "iPadAirG5",
-      "alias": []
+      "alias": ["iPadAirG4"]
     },
     {
       "file": "iPhone7",
-      "alias": ["iPhone8", "iPhoneSE_2", "iPhoneSE_3"]
+      "alias": ["iPhone6", "iPhone6s", "iPhone8", "iPhoneSE_2", "iPhoneSE_3"]
+    },
+    {
+      "file": "iPhoneXR",
+      "alias": ["iPhone11"]
     },
     {
       "file": "SH-M05",
