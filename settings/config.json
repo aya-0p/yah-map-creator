@@ -1,0 +1,22 @@
+{
+  "devices": [
+    {
+      "file": "iPadAirG5",
+      "alias": []
+    },
+    {
+      "file": "iPhone7",
+      "alias": ["iPhone8", "iPhoneSE_2", "iPhoneSE_3"]
+    },
+    {
+      "file": "SH-M05",
+      "alias": []
+    },
+    {
+      "file": "SH-M08",
+      "alias": []
+    }
+  ],
+  "side": "side.png",
+  "over": "over.png"
+}
