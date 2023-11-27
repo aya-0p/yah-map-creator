@@ -2,23 +2,33 @@
   "devices": [
     {
       "file": "iPadAirG5",
-      "alias": ["iPadAirG4"]
+      "alias": ["iPad Air (第5世代)", "iPad Air (第4世代)"],
+      "img0": "iPadAirG5_0.png",
+      "img1": "iPadAirG5_1.png"
     },
     {
       "file": "iPhone7",
-      "alias": ["iPhone6", "iPhone6s", "iPhone8", "iPhoneSE_2", "iPhoneSE_3"]
+      "alias": ["iPhone 6", "iPhone 6S", "iPhone 7", "iPhone 8", "iPhone SE (第2世代)", "iPhone SE (第3世代)"],
+      "img0": "iPhone7_0.png",
+      "img1": "iPhone7_1.png"
     },
     {
       "file": "iPhoneXR",
-      "alias": ["iPhone11"]
+      "alias": ["iPhone XR", "iPhone 11"],
+      "img0": "iPhoneXR_0.png",
+      "img1": "iPhoneXR_1.png"
     },
     {
       "file": "SH-M05",
-      "alias": []
+      "alias": ["SH-M05"],
+      "img0": "SH-M05_0.png",
+      "img1": "SH-M05_1.png"
     },
     {
       "file": "SH-M08",
-      "alias": []
+      "alias": ["SH-M08"],
+      "img0": "SH-M08_0.png",
+      "img1": "SH-M08_1.png"
     }
   ],
   "side": "side.png",
