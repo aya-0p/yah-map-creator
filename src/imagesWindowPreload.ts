@@ -12,4 +12,5 @@ contextBridge.exposeInMainWorld('electron', {
   getConfigs: () => ipcRenderer.invoke("images:getConfigs"),
   sort: (reverse: boolean) => ipcRenderer.send("images:sort", reverse),
   remove: (images: Array<string>) => ipcRenderer.send("image:remove", images),
+  removeConfig: (imagePaths: Array<string>) => ipcRenderer.send("image:removeConfig", imagePaths),
 });

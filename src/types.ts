@@ -17,7 +17,6 @@ export interface ProjectConfig {
   settings: Settings;
   side: Buffer;
   over: Buffer;
-  imageConfigs: Map<string, string>;
   imageConfigDatas: Map<string, ImageConf>;
 }
 export interface ProjectData {
@@ -31,10 +30,10 @@ export class Image {
   private path: string;
   private imgBuffer: Buffer;
   private name: string;
-  private matchBase: boolean;
   private baseConf?: ImageConf;
   private conf?: ImageConf;
   private useCustom: boolean = false;
+  private matchConf: boolean;
   private thumbImg?: Buffer;
   private selectImg?: Buffer;
   private projectConfig: ProjectConfig;
@@ -60,11 +59,10 @@ export class Image {
       this.width ??= NaN;
       this.height ??= NaN;
     }
-    this.matchBase =
+    this.matchConf =
       this.baseConf != null &&
       this.width === this.baseConf.width &&
       this.height === this.baseConf.height;
-    if (this.matchBase && baseConf) this.updateThumb(baseConf);
     this.conf = this.baseConf;
     this.fixWidth = Math.floor(this.width / 8) * 2;
     this.fixHeight = Math.floor(this.height / 8) * 2;
@@ -75,26 +73,28 @@ export class Image {
   get filepath(): string {
     return this.path;
   }
-  async updateBaseConf(baseConf: ImageConf) {
+  updateBaseConf(baseConf: ImageConf) {
     this.baseConf = baseConf;
-    this.matchBase =
-      this.width === this.baseConf.width &&
-      this.height === this.baseConf.height &&
-      !this.useCustom;
     if (!this.useCustom) {
       this.conf = this.baseConf;
-      if (this.matchBase) await this.updateThumb(baseConf);
+      this.matchConf =
+        this.width === baseConf.width &&
+        this.height === baseConf.height &&
+        !this.useCustom;
     }
   }
-  async setConf(conf: ImageConf): Promise<boolean> {
-    const { width, height } = imageSize(this.imgBuffer);
-    if (width !== this.width || height !== this.height) return false;
+  setConf(conf: ImageConf) {
     this.conf = conf;
     this.useCustom = true;
-    await this.updateThumb(conf);
-    return true;
+    console.log(conf.id, conf.width, this.width, conf.height, this.height);
+    this.matchConf = conf.width === this.width && conf.height === this.height;
   }
-  private async updateThumb(conf: ImageConf) {
+  removeConf() {
+    this.conf = this.baseConf;
+    this.useCustom = false;
+    this.matchConf = this.baseConf != null && this.baseConf.width === this.width && this.baseConf.height === this.height;
+  }
+  private async updateThumb_(conf: ImageConf) {
     const resizedOverImage = await sharp(this.projectConfig.over)
       .resize(this.fixWidth, 4, { position: "north" })
       .png()
@@ -150,11 +150,8 @@ export class Image {
       .png()
       .toBuffer();
   }
-  isMatchBase() {
-    return this.matchBase;
-  }
   isMatch() {
-    return this.matchBase || this.useCustom;
+    return this.matchConf;
   }
   get thumbImage() {
     return this.thumbImg;
@@ -175,7 +172,8 @@ export class ImageConf {
   readonly id: string;
   readonly valid: boolean;
   readonly zoomLevel: 0 | 1 | 2;
-  constructor(id: string, delImgPath: string, zoomLevel: 0 | 1 | 2) {
+  readonly direction: 0 | 1;
+  constructor(id: string, delImgPath: string, zoomLevel: 0 | 1 | 2, direction: 0 | 1) {
     this.delImg = fs.readFileSync(delImgPath);
     try {
       const { width, height } = imageSize(this.delImg);
@@ -202,6 +200,7 @@ export class ImageConf {
       }
     }
     this.id = id;
+    this.direction = direction;
     this.valid = !(Number.isNaN(this.width) || Number.isNaN(this.height));
   }
 }

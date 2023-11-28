@@ -10,6 +10,7 @@
  * @property {() => Promise<Array<string>>} getConfigs
  * @property {(reverse: boolean) => void} sort
  * @property {(images: Array<string>) => void} remove
+ * @property {(imagePaths: Array<string>) => void} removeConfig
  */
 
 // init
@@ -29,6 +30,7 @@ const confirmAllHtml = document.getElementById("confirmAll");
 const imageListHtml = document.getElementById("imageList");
 const removeHtml = document.getElementById("remove");
 const removeDisabledHtml = document.getElementById("removeDisabled");
+const removeConfigHtml = document.getElementById("removeConfig");
 
 if (
   !(
@@ -53,7 +55,9 @@ if (
     removeHtml &&
     removeHtml instanceof HTMLButtonElement &&
     removeDisabledHtml &&
-    removeDisabledHtml instanceof HTMLButtonElement
+    removeDisabledHtml instanceof HTMLButtonElement && 
+    removeConfigHtml &&
+    removeConfigHtml instanceof HTMLButtonElement
   )
 ) {
   window.alert("ファイルが破損しています");
@@ -99,7 +103,7 @@ confirmAllHtml.addEventListener("click", () => {
   if (device === "") return;
   if (distance === "") return;
   if (direction === "") return;
-  electron.setDefaultConfig(device + distance + direction);
+  electron.setDefaultConfig(device + direction + distance);
 });
 removeDisabledHtml.addEventListener("click", () => {
   /** @type {Array<string>} */
@@ -123,7 +127,7 @@ confirmHtml.addEventListener("click", () => {
     const path = selectedHtml.getElementsByClassName("path")[0]?.innerHTML.replace("Path: ", "");
     if (path) selectedList.push(path);
   }
-  electron.setConfig(device + distance + direction, selectedList);
+  electron.setConfig(device + direction + distance, selectedList);
 });
 removeHtml.addEventListener("click", () => {
   /** @type {Array<string>} */
@@ -134,9 +138,18 @@ removeHtml.addEventListener("click", () => {
   }
   electron.remove(selectedList);
 })
+removeConfigHtml.addEventListener("click", () => {
+  /** @type {Array<string>} */
+  const selectedList = [];
+  for (const selectedHtml of document.getElementsByClassName("selected")) {
+    const path = selectedHtml.getElementsByClassName("path")[0]?.innerHTML.replace("Path: ", "");
+    if (path) selectedList.push(path);
+  }
+  electron.removeConfig(selectedList);
+})
 
 electron.update((images) => {
-  const { scrollHeight } = imageListHtml;
+  const { scrollTop } = imageListHtml;
   while (imageListHtml.children.length !== 0) imageListHtml.removeChild(imageListHtml.children[0])
   for (const image of images) {
     const span = document.createElement("span");
@@ -178,7 +191,7 @@ electron.update((images) => {
           break;
       }
     } else {
-      device.innerHTML = "デバイスID: 未設定";
+      device.innerHTML = "デバイス: 未設定";
       distance.innerHTML = "表示: 未設定";
       direction.innerHTML = "向き: 未設定";
     }
@@ -213,7 +226,8 @@ electron.update((images) => {
 
     imageListHtml.appendChild(span);
   }
-  imageListHtml.scroll(scrollHeight, 0);
+  imageListHtml.scroll(0, scrollTop);
+  showSelectItemSize();
 });
 function showSelectItemSize() {
   const counterHtml = document.getElementById("counter");

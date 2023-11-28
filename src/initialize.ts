@@ -7,6 +7,9 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
   fs.rmdir(config.tempPath, (err) => {
     fs.mkdir(config.tempPath, (err) => {});
   });
+  for (const [_, imageConf] of config.imageConfigDatas) {
+    console.log(imageConf)
+  }
   const imagesWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -103,10 +106,9 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
     [
       "images:setDefaultConfig",
       (event, configId: string) => {
-        const imageConfig = config.imageConfigDatas.get(config.imageConfigs.get(configId) ?? "");
+        const imageConfig = config.imageConfigDatas.get(configId);
         if (!imageConfig) return;
         baseConf = imageConfig;
-        console.log(imageConfig.width, imageConfig.height)
         for (const [_, image] of imageList) {
           image.updateBaseConf(imageConfig);
           update()
@@ -121,7 +123,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
       (event, configId: string, imagePaths: Array<string>) => {
         for (const imagePath of imagePaths) {
           const image = imageList.get(imagePath);
-          const imageConfig = config.imageConfigDatas.get(config.imageConfigs.get(configId) ?? "");
+          const imageConfig = config.imageConfigDatas.get(configId);
           if (!image || !imageConfig) continue;
           image.setConf(imageConfig);
         }
@@ -151,6 +153,15 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
         }
         update();
       }
+    ],
+    [
+      "image:removeConfig",
+      (event, imagePaths: Array<string>) => {
+        for (const iamgePath of imagePaths) {
+          imageList.get(iamgePath)?.removeConf();
+        }
+        update();
+      }
     ]
   ];
   const ipcMainHandleListeners: Array<[string, (event: IpcMainInvokeEvent, ...args: any[]) => any]> = [
@@ -160,7 +171,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
     [
       "images:getConfigs",
       (event) => {
-        return [...config.imageConfigs.keys()];
+        return [...config.imageConfigDatas.keys()];
       }
     ],
   ];

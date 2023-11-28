@@ -31,17 +31,14 @@ app.on("ready", async ({ preventDefault, defaultPrevented }, launchInfo) => {
     side: fs.readFileSync(path.join(__dirname, "../settings/", settings.side)),
     over: fs.readFileSync(path.join(__dirname, "../settings/", settings.over)),
     imageConfigDatas: new Map(),
-    imageConfigs: new Map(),
   };
   config.log = new console.Console(config.logStream);
   for (const device of config.settings.devices) {
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < 3; j++) {
-        const deviceId = `${device.file}_${i}_${j}`;
-        config.imageConfigDatas.set(deviceId, new ImageConf(deviceId, path.join(__dirname, "../settings/", device[`img${i as 0 | 1}`]), j as 0 | 1 | 2));
         for (let deviceName of device.alias) {
           deviceName += `_${i}_${j}`;
-          config.imageConfigs.set(deviceName, deviceId);
+          config.imageConfigDatas.set(deviceName, new ImageConf(deviceName, path.join(__dirname, "../settings/", device[`img${i as 0 | 1}`]), j as 0 | 1 | 2, i as 0 | 1));
         }
       }
     }
