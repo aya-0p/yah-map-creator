@@ -1,72 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Images</title>
-</head>
-<body>
-  <div id="imageList">
-    <!-- 左半分に画像一覧 -->
-  </div>
-  <div id="conf">
-    <div id="add">
-      <!-- 画像追加 -->
-      <button id="file">画像を選択</button>
-      <button id="dir">画像フォルダを選択</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Images</title>
+  </head>
+  <body>
+    <div id="imageList">
+      <!-- 左半分に画像一覧 -->
     </div>
-    <div id="selectConfig">
-      <select id="device">
-        <!-- device list -->
-      </select>
-      <select id="distance">
-        <option value="">--表示サイズを選択--</option>
-        <option value="_0">近く</option>
-        <option value="_1">中くらい</option>
-        <option value="_2">遠く</option>
-      </select>
-      <select id="direction">
-        <option value="">--画面の向きを選択--</option>
-        <option value="_0">縦画面</option>
-        <option value="_1">横画面</option>
-      </select><br>
-      <button id="confirm">選択中の画像に適用</button><br>
-      <button id="confirmAll">すべての画像に適用</button>
+    <div id="conf">
+      <div id="add">
+        <!-- 画像追加 -->
+        <button id="file">画像を選択</button>
+        <button id="dir">画像フォルダを選択</button><br>
+        <button id="remove">選択している画像を削除</button><br>
+        <button id="removeDisabled">無効な画像を削除</button><br>
+        <div id="counter">0項目選択中</div>
+      </div>
+      <div id="selectConfig">
+        <select id="device">
+          <!-- device list -->
+        </select>
+        <select id="distance">
+          <option value="">--表示サイズを選択--</option>
+          <option value="_0">近く</option>
+          <option value="_1">中くらい</option>
+          <option value="_2">遠く</option>
+        </select>
+        <select id="direction">
+          <option value="">--画面の向きを選択--</option>
+          <option value="_0">縦画面</option>
+          <option value="_1">横画面</option></select
+        ><br />
+        <button id="confirm">選択中の画像に適用</button><br />
+        <button id="confirmAll">すべての画像に適用</button>
+      </div>
+      <div id="start_">
+        <button id="start">開始</button>
+      </div>
     </div>
-    <div id="start_">
-      <button id="start">開始</button>
-    </div>
-  </div>
-  <script src="./images.js"></script>
-  <style>
-    body {
-      display: flex;
-      height: 100vh;
-    }
-    #imageList {
-      width: 70%;
-      overflow: scroll;
-    }
-    #conf {
-      width: 30%;
-    }
-    #add {
-      height: 30vh;
-    }
-    #selectConfig {
-      height: 50vh;
-    }
-    .content {
-      display: flex;
-      padding: 5px;
-    }
-    .contentImg {
-      width: 10%;
-    }
-    .contentDesc {
-      display: flex;
-      flex-direction: column;
-    }
-  </style>
-</body>
+    <script src="./images.js"></script>
+    <style>
+      body {
+        display: flex;
+        height: 100vh;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        margin: 0px;
+        padding: 0px;
+      }
+      #imageList {
+        width: 70%;
+        overflow: scroll;
+      }
+      #imageList::-webkit-scrollbar {
+        display: none;
+      }
+      #conf {
+        width: 30%;
+        padding: 5px;
+      }
+      #add {
+        height: 30vh;
+      }
+      #selectConfig {
+        height: 50vh;
+      }
+      .content {
+        display: flex;
+        padding: 5px;
+        border-top: dotted;
+      }
+      .contentImg {
+        width: 10%;
+        max-height: 20vh;
+        object-fit: contain;
+      }
+      .contentDesc {
+        display: flex;
+        flex-direction: column;
+      }
+      .disabled {
+        background-color: darkgray;
+      }
+      .invalid {
+        background-color: lightyellow;
+      }
+      .selected {
+        background-color: lightgray;
+      }
+    </style>
+  </body>
 </html>

@@ -38,6 +38,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
         configId: image.config?.id,
         width: image.width,
         height: image.height,
+        match: image.isMatch(),
       })
     }
     imagesWindow.webContents.send("update", images);
@@ -117,11 +118,13 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
      */
     [
       "images:setConfig",
-      (event, configId: string, imagePath: string) => {
-        const image = imageList.get(imagePath);
-        const imageConfig = config.imageConfigDatas.get(config.imageConfigs.get(configId) ?? "");
-        if (!image || !imageConfig) return;
-        image.setConf(imageConfig);
+      (event, configId: string, imagePaths: Array<string>) => {
+        for (const imagePath of imagePaths) {
+          const image = imageList.get(imagePath);
+          const imageConfig = config.imageConfigDatas.get(config.imageConfigs.get(configId) ?? "");
+          if (!image || !imageConfig) continue;
+          image.setConf(imageConfig);
+        }
         update()
       }
     ],
@@ -138,6 +141,15 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
           imageList.set(img.filepath, img);
         }
         update()
+      }
+    ],
+    [
+      "image:remove",
+      (event, images: Array<string>) => {
+        for (const image of images) {
+          imageList.delete(image);
+        }
+        update();
       }
     ]
   ];

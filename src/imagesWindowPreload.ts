@@ -8,7 +8,8 @@ contextBridge.exposeInMainWorld('electron', {
   update: (fn: Function) => ipcRenderer.on("update", (event, data: Array<ImageDatas>) => fn(data)),
   start: () => ipcRenderer.send("images:start"),
   setDefaultConfig: (configId: string) => ipcRenderer.send("images:setDefaultConfig", configId),
-  setConfig: (configId: string, imagePath: string) => ipcRenderer.send("images:setConfig", configId, imagePath),
+  setConfig: (configId: string, imagePaths: Array<string>) => ipcRenderer.send("images:setConfig", configId, imagePaths),
   getConfigs: () => ipcRenderer.invoke("images:getConfigs"),
   sort: (reverse: boolean) => ipcRenderer.send("images:sort", reverse),
+  remove: (images: Array<string>) => ipcRenderer.send("image:remove", images),
 });

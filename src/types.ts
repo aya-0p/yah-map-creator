@@ -153,6 +153,9 @@ export class Image {
   isMatchBase() {
     return this.matchBase;
   }
+  isMatch() {
+    return this.matchBase || this.useCustom;
+  }
   get thumbImage() {
     return this.thumbImg;
   }
@@ -221,6 +224,7 @@ export interface ImageDatas {
   configId?: string;
   width: number;
   height: number;
+  match: boolean;
 }
 
 /**
