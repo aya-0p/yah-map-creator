@@ -56,7 +56,7 @@ app.on("ready", async ({ preventDefault, defaultPrevented }, launchInfo) => {
       config.helpWindow.once("closed", () => {
         config.helpWindow?.destroy();
         config.helpWindow = undefined;
-      })
+      });
     }
     config.helpWindow.loadFile("");
   });
@@ -72,5 +72,3 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
-
-

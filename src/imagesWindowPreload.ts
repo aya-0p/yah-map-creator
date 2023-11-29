@@ -1,7 +1,7 @@
-import { ipcRenderer, contextBridge } from 'electron'
-import { ImageDatas } from './types';
+import { ipcRenderer, contextBridge } from "electron";
+import { ImageDatas } from "./types";
 
-contextBridge.exposeInMainWorld('electron', {
+contextBridge.exposeInMainWorld("electron", {
   selectImg: () => ipcRenderer.send("images:loadImg"),
   selectDir: () => ipcRenderer.send("images:loadDir"),
   test: () => ipcRenderer.send("test"),

@@ -32,34 +32,7 @@ const removeHtml = document.getElementById("remove");
 const removeDisabledHtml = document.getElementById("removeDisabled");
 const removeConfigHtml = document.getElementById("removeConfig");
 
-if (
-  !(
-    fileHtml &&
-    fileHtml instanceof HTMLButtonElement &&
-    dirHtml &&
-    dirHtml instanceof HTMLButtonElement &&
-    deviceHtml &&
-    deviceHtml instanceof HTMLSelectElement &&
-    distanceHtml &&
-    distanceHtml instanceof HTMLSelectElement &&
-    directionHtml &&
-    directionHtml instanceof HTMLSelectElement &&
-    startHtml &&
-    startHtml instanceof HTMLButtonElement &&
-    confirmHtml &&
-    confirmHtml instanceof HTMLButtonElement &&
-    confirmAllHtml &&
-    confirmAllHtml instanceof HTMLButtonElement &&
-    imageListHtml &&
-    imageListHtml instanceof HTMLDivElement &&
-    removeHtml &&
-    removeHtml instanceof HTMLButtonElement &&
-    removeDisabledHtml &&
-    removeDisabledHtml instanceof HTMLButtonElement && 
-    removeConfigHtml &&
-    removeConfigHtml instanceof HTMLButtonElement
-  )
-) {
+if (!(fileHtml && fileHtml instanceof HTMLButtonElement && dirHtml && dirHtml instanceof HTMLButtonElement && deviceHtml && deviceHtml instanceof HTMLSelectElement && distanceHtml && distanceHtml instanceof HTMLSelectElement && directionHtml && directionHtml instanceof HTMLSelectElement && startHtml && startHtml instanceof HTMLButtonElement && confirmHtml && confirmHtml instanceof HTMLButtonElement && confirmAllHtml && confirmAllHtml instanceof HTMLButtonElement && imageListHtml && imageListHtml instanceof HTMLDivElement && removeHtml && removeHtml instanceof HTMLButtonElement && removeDisabledHtml && removeDisabledHtml instanceof HTMLButtonElement && removeConfigHtml && removeConfigHtml instanceof HTMLButtonElement)) {
   window.alert("ファイルが破損しています");
   throw new Error("invalid html");
 }
@@ -77,7 +50,7 @@ electron.getConfigs().then((data) => {
    * @type {string | undefined}
    */
   const value = deviceHtml.selectedOptions[0]?.value;
-  while (deviceHtml.children.length !== 0) deviceHtml.removeChild(deviceHtml.children[0])
+  while (deviceHtml.children.length !== 0) deviceHtml.removeChild(deviceHtml.children[0]);
   const optHtml = new Option("--デバイスを選択--", "");
   optHtml.selected = true;
   deviceHtml.appendChild(optHtml);
@@ -137,7 +110,7 @@ removeHtml.addEventListener("click", () => {
     if (path) selectedList.push(path);
   }
   electron.remove(selectedList);
-})
+});
 removeConfigHtml.addEventListener("click", () => {
   /** @type {Array<string>} */
   const selectedList = [];
@@ -146,11 +119,11 @@ removeConfigHtml.addEventListener("click", () => {
     if (path) selectedList.push(path);
   }
   electron.removeConfig(selectedList);
-})
+});
 
 electron.update((images) => {
   const { scrollTop } = imageListHtml;
-  while (imageListHtml.children.length !== 0) imageListHtml.removeChild(imageListHtml.children[0])
+  while (imageListHtml.children.length !== 0) imageListHtml.removeChild(imageListHtml.children[0]);
   for (const image of images) {
     const span = document.createElement("span");
     const img = document.createElement("img");
@@ -163,7 +136,7 @@ electron.update((images) => {
     const distance = document.createElement("span");
     const direction = document.createElement("span");
     img.src = image.path;
-    img.setAttribute('draggable', false);
+    img.setAttribute("draggable", false);
     title.innerHTML = `<b>${image.name}</b>`;
     path.innerHTML = "Path: " + image.path;
     width.innerHTML = "幅: " + image.width;
@@ -201,7 +174,6 @@ electron.update((images) => {
     desc.classList.add("contentDesc");
     path.classList.add("path");
 
-
     desc.appendChild(title);
     desc.appendChild(path);
     if (Number.isNaN(image.width) || Number.isNaN(image.height)) {
@@ -217,9 +189,8 @@ electron.update((images) => {
         if (span.classList.contains("selected")) span.classList.remove("selected");
         else span.classList.add("selected");
         showSelectItemSize();
-      })
+      });
     }
-
 
     span.appendChild(img);
     span.appendChild(desc);

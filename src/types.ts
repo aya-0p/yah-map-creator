@@ -41,11 +41,7 @@ export class Image {
   readonly height: number;
   readonly fixWidth: number;
   readonly fixHeight: number;
-  constructor(
-    path: string,
-    projectConfig: ProjectConfig,
-    baseConf?: ImageConf
-  ) {
+  constructor(path: string, projectConfig: ProjectConfig, baseConf?: ImageConf) {
     this.path = path;
     this.baseConf = baseConf;
     this.projectConfig = projectConfig;
@@ -59,10 +55,7 @@ export class Image {
       this.width ??= NaN;
       this.height ??= NaN;
     }
-    this.matchConf =
-      this.baseConf != null &&
-      this.width === this.baseConf.width &&
-      this.height === this.baseConf.height;
+    this.matchConf = this.baseConf != null && this.width === this.baseConf.width && this.height === this.baseConf.height;
     this.conf = this.baseConf;
     this.fixWidth = Math.floor(this.width / 8) * 2;
     this.fixHeight = Math.floor(this.height / 8) * 2;
@@ -77,16 +70,12 @@ export class Image {
     this.baseConf = baseConf;
     if (!this.useCustom) {
       this.conf = this.baseConf;
-      this.matchConf =
-        this.width === baseConf.width &&
-        this.height === baseConf.height &&
-        !this.useCustom;
+      this.matchConf = this.width === baseConf.width && this.height === baseConf.height && !this.useCustom;
     }
   }
   setConf(conf: ImageConf) {
     this.conf = conf;
     this.useCustom = true;
-    console.log(conf.id, conf.width, this.width, conf.height, this.height);
     this.matchConf = conf.width === this.width && conf.height === this.height;
   }
   removeConf() {
@@ -95,14 +84,8 @@ export class Image {
     this.matchConf = this.baseConf != null && this.baseConf.width === this.width && this.baseConf.height === this.height;
   }
   private async updateThumb_(conf: ImageConf) {
-    const resizedOverImage = await sharp(this.projectConfig.over)
-      .resize(this.fixWidth, 4, { position: "north" })
-      .png()
-      .toBuffer();
-    const resizedSideImage = await sharp(this.projectConfig.side)
-      .resize(4, this.fixHeight, { position: "west" })
-      .png()
-      .toBuffer();
+    const resizedOverImage = await sharp(this.projectConfig.over).resize(this.fixWidth, 4, { position: "north" }).png().toBuffer();
+    const resizedSideImage = await sharp(this.projectConfig.side).resize(4, this.fixHeight, { position: "west" }).png().toBuffer();
     const temp = await sharp(this.imgBuffer)
       .ensureAlpha()
       .composite([
@@ -231,7 +214,7 @@ export interface ImageDatas {
  * @param key 挿入するkey
  * @param value 挿入するvalue
  * @param insertTo 挿入する場所
- * 
+ *
  * @example
  * ```ts
  * const map = new Map<number, string>([[0, "0"], [1, "1"], [3, "3"]]);

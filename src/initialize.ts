@@ -7,9 +7,6 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
   fs.rmdir(config.tempPath, (err) => {
     fs.mkdir(config.tempPath, (err) => {});
   });
-  for (const [_, imageConf] of config.imageConfigDatas) {
-    console.log(imageConf)
-  }
   const imagesWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -42,7 +39,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
         width: image.width,
         height: image.height,
         match: image.isMatch(),
-      })
+      });
     }
     imagesWindow.webContents.send("update", images);
   }
@@ -64,7 +61,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
           }
         }
         update();
-      }
+      },
     ],
     /**
      * 画像ディレクトリの読み込み
@@ -87,7 +84,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
           }
         }
         update();
-      }
+      },
     ],
     /**
      * test
@@ -98,7 +95,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
         for (const [filepath, image] of imageList) {
           console.log(image.filename, image.width, image.height, image.filepath);
         }
-      }
+      },
     ],
     /**
      * デフォルトの読み込み設定を変更
@@ -111,9 +108,9 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
         baseConf = imageConfig;
         for (const [_, image] of imageList) {
           image.updateBaseConf(imageConfig);
-          update()
+          update();
         }
-      }
+      },
     ],
     /**
      * 画像の読み込み設定を変更
@@ -127,8 +124,8 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
           if (!image || !imageConfig) continue;
           image.setConf(imageConfig);
         }
-        update()
-      }
+        update();
+      },
     ],
     [
       "images:sort",
@@ -137,13 +134,13 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
           const temp = [a.filename, b.filename].sort();
           if (reverse === (temp[0] === b.filename)) return -1;
           else return 1;
-        })
-        imageList.clear()
+        });
+        imageList.clear();
         for (const img of temp) {
           imageList.set(img.filepath, img);
         }
-        update()
-      }
+        update();
+      },
     ],
     [
       "image:remove",
@@ -152,7 +149,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
           imageList.delete(image);
         }
         update();
-      }
+      },
     ],
     [
       "image:removeConfig",
@@ -161,8 +158,8 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
           imageList.get(iamgePath)?.removeConf();
         }
         update();
-      }
-    ]
+      },
+    ],
   ];
   const ipcMainHandleListeners: Array<[string, (event: IpcMainInvokeEvent, ...args: any[]) => any]> = [
     /**
@@ -172,7 +169,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
       "images:getConfigs",
       (event) => {
         return [...config.imageConfigDatas.keys()];
-      }
+      },
     ],
   ];
 
