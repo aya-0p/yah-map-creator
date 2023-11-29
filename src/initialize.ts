@@ -2,8 +2,9 @@ import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, dialog, ipcMain } from
 import { Image, ImageConf, ImageDatas, ProjectConfig } from "./types";
 import fs from "fs-extra";
 import path from "node:path";
+import { Collection } from "@discordjs/collection";
 
-export default async (config: ProjectConfig): Promise<[Map<string, Image>, BrowserWindow]> => {
+export default async (config: ProjectConfig): Promise<[Collection<string, Image>, BrowserWindow]> => {
   fs.rmdir(config.tempPath, (err) => {
     fs.mkdir(config.tempPath, (err) => {});
   });
@@ -23,7 +24,7 @@ export default async (config: ProjectConfig): Promise<[Map<string, Image>, Brows
   /**
    * @key path
    */
-  const imageList: Map<string, Image> = new Map();
+  const imageList: Collection<string, Image> = new Collection();
 
   let baseConf: ImageConf | undefined = undefined;
   /**

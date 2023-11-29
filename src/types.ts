@@ -3,6 +3,7 @@ import { Duplex } from "node:stream";
 import fs from "fs-extra";
 import imageSize from "image-size";
 import sharp, { gravity } from "sharp";
+import { Collection } from "@discordjs/collection";
 export interface ProjectConfig {
   /**
    * 一時フォルダへのパス
@@ -20,10 +21,11 @@ export interface ProjectConfig {
   imageConfigDatas: Map<string, ImageConf>;
 }
 export interface ProjectData {
-  images: Map<string, Image>;
+  images: Collection<string, Image>;
   baseConf?: ImageConf;
   editHistory: Array<EditHistory>;
-  currentHistory: number;
+  nextHistory: number;
+  nextImg: number;
 }
 
 export class Image {
