@@ -4,7 +4,7 @@ import fs from "fs-extra";
 import path from "node:path";
 import { Collection } from "@discordjs/collection";
 
-export default async (config: ProjectConfig): Promise<[Collection<string, Image>, BrowserWindow]> => {
+export default async (config: ProjectConfig): Promise<[Collection<string, Image>, BrowserWindow, ImageConf]> => {
   fs.rmdir(config.tempPath, (err) => {
     fs.mkdir(config.tempPath, (err) => {});
   });
@@ -179,5 +179,6 @@ export default async (config: ProjectConfig): Promise<[Collection<string, Image>
   await new Promise<any>(async (resolve) => ipcMain.once("images:start", resolve));
   for (const [channel, listener] of ipcMainEventListeners) ipcMain.removeListener(channel, listener);
   for (const [channel, _] of ipcMainHandleListeners) ipcMain.removeHandler(channel);
-  return [imageList, imagesWindow];
+  if (!baseConf) throw new Error("プロジェクトの基本画像設定が設定されていません。")
+  return [imageList, imagesWindow, baseConf];
 };

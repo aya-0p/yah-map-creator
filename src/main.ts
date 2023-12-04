@@ -1,15 +1,12 @@
 import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, dialog, ipcMain } from "electron";
-import { Image, ImageDatas, ProjectConfig, ProjectData } from "./types";
+import { EditHistoryController, Image, ImageConf, ImageDatas, ProjectConfig, ProjectData } from "./types";
 import fs from "fs-extra";
 import path from "node:path";
 import { Collection } from "@discordjs/collection";
 
-export default async (config: ProjectConfig, images: Collection<string, Image>, imagesWindow: BrowserWindow) => {
+export default async (config: ProjectConfig, images: Collection<string, Image>, imagesWindow: BrowserWindow, baseConf: ImageConf) => {
   const projectData: ProjectData = {
-    images,
-    editHistory: [],
-    nextHistory: 0,
-    nextImg: 0,
+    editHistory: new EditHistoryController(images, baseConf),
   };
   // debug
   config.mainWindow.webContents.openDevTools();
@@ -17,39 +14,49 @@ export default async (config: ProjectConfig, images: Collection<string, Image>, 
   imagesWindow.webContents.openDevTools();
   // ---
   await new Promise<void>(async (resolve) => {
-    function update() {
-      let editHistory = projectData.editHistory.at(projectData.nextHistory - 1);
-      if (!editHistory) {
-        const nextImg = projectData.images.at(projectData.nextImg) as Image;
-        editHistory = {
-          imagesMap: new Map(),
-          generatedThumb: nextImg.thumbImage as Buffer,
-          editType: "set",
-          editDesc: `画像 "${nextImg.filename}" を [0,0] に配置`,
-        };
-        editHistory.imagesMap.set(nextImg.filepath, [0, 0]);
-        projectData.editHistory.push(editHistory);
-        projectData.nextHistory++;
-        projectData.nextImg++;
-      }
-      const thumb = editHistory.generatedThumb;
-      const next = projectData.images.at(projectData.nextImg)?.selectImage ?? Buffer.alloc(0);
-      config.mainWindow.webContents.send("update", thumb, next);
-
-      const sendImgDatas: Array<ImageDatas> = [];
-      let i = 0;
-      for (const [_, image] of projectData.images) {
-        sendImgDatas.push({
-          path: image.filepath,
-          name: image.filename,
-          width: image.width,
-          height: image.height,
-          match: projectData.nextImg < i,
-        });
-      }
-      imagesWindow.webContents.send("update", sendImgDatas);
+    function update(nextImagePath: string) {
+      projectData.editHistory.currentHistory.thumb;
+      const image = images.get(nextImagePath);
+      if (!image) throw new Error("画像名と一致する画像が見つかりませんでした。");
+      const {selectImage} = image;
+      if (!selectImage) throw new Error("選択中の画像が生成されていません。");
     }
-    const ipcMainEventListeners: Array<[string, (event: IpcMainEvent, ...args: any[]) => void]> = [];
+    const ipcMainEventListeners: Array<[string, (event: IpcMainEvent, ...args: any[]) => void]> = [
+      [
+        "main:set",
+        async (event, imagePath: string, location: [number, number], nextImagePath: string) => {
+          await projectData.editHistory.add(imagePath, location);
+          update(nextImagePath);
+        },
+      ],
+      [
+        "main:undo",
+        () => {
+          projectData.editHistory.undo()
+        }
+      ],
+      [
+        "main:redo",
+        () => {
+          projectData.editHistory.redo()
+        }
+      ],
+      [
+        "main:selectRedos",
+        (event, fn: (datas: Array<Buffer>) => Promise<number>) => {
+          projectData.editHistory.otherRedos(async (images) => {
+            const i: Array<Buffer> = [];
+            for (const image of images) {
+              i.push(image.thumb)
+            }
+            const index = await fn(i);
+            const image = images.at(index);
+            if (!image) throw new Error("画像名と一致する画像が見つかりませんでした。");
+            return image;
+          })
+        }
+      ]
+    ];
     const ipcMainHandleListeners: Array<[string, (event: IpcMainInvokeEvent, ...args: any[]) => any]> = [];
     for (const [channel, listener] of ipcMainEventListeners) ipcMain.on(channel, listener);
     for (const [channel, listener] of ipcMainHandleListeners) ipcMain.handle(channel, listener);

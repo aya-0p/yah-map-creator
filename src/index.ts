@@ -62,9 +62,9 @@ app.on("ready", async ({ preventDefault, defaultPrevented }, launchInfo) => {
   });
 
   // 利用する画像の選択など
-  const [images, browserWindow] = await initialize(config);
+  const [images, browserWindow, baseConf] = await initialize(config);
   // 画像の編集
-  main(config, images, browserWindow);
+  main(config, images, browserWindow, baseConf);
 });
 
 app.on("window-all-closed", () => {
