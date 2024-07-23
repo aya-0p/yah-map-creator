@@ -1,26 +1,28 @@
 {
   "name": "yah-map-creator",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Creates World Map of You are Hope Game.",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && chcp 65001 && electron ./dist/app.js",
-    "build": "tsc && electron-builder --win --x64 --dir",
-    "build-full": "tsc && electron-builder --win"
+    "start": "tsc && electron ./index.js",
+    "build": "tsc && electron-builder",
+    "build-full": "tsc && electron-builder"
   },
   "author": "aya-0p",
   "license": "Apache License 2.0",
   "dependencies": {
-    "@discordjs/collection": "^1.0.1",
-    "fs-extra": "^10.1.0",
-    "sharp": "^0.30.7"
+    "@discordjs/collection": "^2.1.0",
+    "fs-extra": "^11.2.0",
+    "image-size": "^1.1.1",
+    "sharp": "^0.33.4"
   },
   "devDependencies": {
-    "@types/fs-extra": "^9.0.13",
-    "@types/sharp": "^0.30.4",
-    "electron": "^20.0.0",
-    "electron-builder": "^23.3.3",
-    "express": "^4.18.1"
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.14.11",
+    "electron": "^31.2.1",
+    "electron-builder": "^24.13.3",
+    "express": "^4.19.2",
+    "typescript": "^5.5.4"
   },
   "build": {
     "appId": "com.aya.mapCreator",
@@ -31,11 +33,27 @@
     "files": [
       "res/**/*",
       "settings/**/*",
-      "src/**/*",
       "index.js",
-      "dist/**/*"
+      "scripts/**/*"
     ],
     "win": {
+      "icon": "res/icon.png",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
       "icon": "res/icon.png",
       "target": [
         {

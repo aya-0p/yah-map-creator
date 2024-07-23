@@ -1,10 +1,74 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { BrowserWindow, app, ipcMain } from "electron";
+import os from "node:os";
+import path from "node:path";
+import initialize from "./initialize";
+import { ImageConf, ProjectConfig, Settings } from "./types";
+import { Duplex } from "node:stream";
+import main from "./main";
+import fs from "fs-extra";
+// electron
+app.on("ready", async ({ preventDefault, defaultPrevented }, launchInfo) => {
+  // initialize
+  const settings: Settings = fs.readJSONSync(path.join(__dirname, "../settings/config.json"));
+  const config: ProjectConfig = {
+    tempPath: path.join(os.tmpdir(), "map"),
+    logStream: new Duplex({
+      write: (_c, _e, next) => next(),
+      read: () => {},
+    }),
+    log: console,
+    mainWindow: new BrowserWindow({
+      width: 800,
+      height: 600,
+      webPreferences: {
+        preload: path.join(__dirname, "./mainWindowPreload.js"),
+      },
+      autoHideMenuBar: true,
+      title: "You are Hope Map Creator",
+      icon: path.join(__dirname, "../res/icon.png"),
+    }),
+    settings: settings,
+    side: fs.readFileSync(path.join(__dirname, "../settings/", settings.side)),
+    over: fs.readFileSync(path.join(__dirname, "../settings/", settings.over)),
+    imageConfigDatas: new Map(),
+  };
+  config.log = new console.Console(config.logStream);
+  for (const device of config.settings.devices) {
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 3; j++) {
+        for (let deviceName of device.alias) {
+          deviceName += `_${i}_${j}`;
+          config.imageConfigDatas.set(deviceName, new ImageConf(deviceName, path.join(__dirname, "../settings/", device[`img${i as 0 | 1}`]), j as 0 | 1 | 2, i as 0 | 1));
+        }
+      }
+    }
+  }
+  config.mainWindow.loadFile(path.join(__dirname, "../res/main.html"));
+  ipcMain.on("showHelp", () => {
+    if (!config.helpWindow) {
+      config.helpWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        autoHideMenuBar: true,
+        title: "You are Hope Map Creator - Help",
+        icon: path.join(__dirname, "../res/icon.png"),
+      });
+      config.helpWindow.once("closed", () => {
+        config.helpWindow?.destroy();
+        config.helpWindow = undefined;
+      });
+    }
+    config.helpWindow.loadFile("");
+  });
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  openPicFile: () => ipcRenderer.invoke('dialog:openPicFolder'),
-  setSettings: (device: string, distance: string, direction: string, dir: string, file: string) => ipcRenderer.send('main:setSettings', device, distance, direction, dir, file),
-  showHelp: () => ipcRenderer.send('main:showHelp'),
-  showLog: () => ipcRenderer.send('main:showLog'),
-  showError: () => ipcRenderer.send('main:showError'),
-  start: (device: string, distance: string, direction: string, dir: string) => ipcRenderer.send('main:start', device, distance, direction, dir)
-})
+  // 利用する画像の選択など
+  const [images, browserWindow, baseConf] = await initialize(config);
+  // 画像の編集
+  main(config, images, browserWindow, baseConf);
+});
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});

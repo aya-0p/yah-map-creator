@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Images</title>
+  </head>
+  <body>
+    <div id="imageList">
+      <!-- 左半分に画像一覧 -->
+    </div>
+    <div id="control">
+      <!-- 右半分に画像の順番編集など -->
+    </div>
+    <script src="./images2.js"></script>
+    <style>
+      body {
+        display: flex;
+        height: 100vh;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        margin: 0px;
+        padding: 0px;
+      }
+      #imageList {
+        width: 70%;
+        overflow: scroll;
+      }
+      #imageList::-webkit-scrollbar {
+        display: none;
+      }
+      #conf {
+        width: 30%;
+        padding: 5px;
+      }
+      #add {
+        height: 30vh;
+      }
+      #selectConfig {
+        height: 50vh;
+      }
+      .content {
+        display: flex;
+        padding: 5px;
+        border-top: dotted;
+      }
+      .contentImg {
+        width: 10%;
+        max-height: 20vh;
+        object-fit: contain;
+      }
+      .contentDesc {
+        display: flex;
+        flex-direction: column;
+      }
+      .disabled {
+        background-color: darkgray;
+      }
+      .invalid {
+        background-color: lightyellow;
+      }
+      .selected {
+        background-color: lightgray;
+      }
+    </style>
+  </body>
+</html>

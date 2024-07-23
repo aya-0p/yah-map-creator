@@ -1,1 +1,1 @@
-require('./dist/app')
+require('./scripts/index.js')
