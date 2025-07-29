@@ -21,7 +21,7 @@
     "@types/node": "^20.14.11",
     "electron": "^31.2.1",
     "electron-builder": "^24.13.3",
-    "express": "^4.19.2",
+    "express": "^4.20.0",
     "typescript": "^5.5.4"
   },
   "build": {
